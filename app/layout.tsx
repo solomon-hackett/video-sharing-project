@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+import NavBar from "@/app/ui/navbar/navbar";
+
 export const metadata: Metadata = {
   title: {
     template: "%s | SoloStream",
@@ -14,8 +16,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`h-full antialiased`}>
-      <body className="flex flex-col min-h-full">{children}</body>
+    <html lang="en">
+      <body>
+        <NavBar />
+        {children}
+      </body>
     </html>
   );
 }
