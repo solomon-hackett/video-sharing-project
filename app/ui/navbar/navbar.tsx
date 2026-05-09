@@ -3,6 +3,8 @@ import clsx from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { UserCircleIcon } from "@heroicons/react/24/outline";
+
 import Search from "./search";
 
 const links = [
@@ -12,6 +14,7 @@ const links = [
 ];
 
 export default function NavBar() {
+  const isSignedIn = false;
   const pathname = usePathname();
   return (
     <nav className="navbar">
@@ -30,9 +33,15 @@ export default function NavBar() {
           </Link>
         ))}
       </div>
-      <div className="avatar-initials avatar-sm">
-        <span></span>
-      </div>
+      {isSignedIn ? (
+        <div className="avatar-initials avatar-sm">
+          <UserCircleIcon className="w-5 h-5" />
+        </div>
+      ) : (
+        <Link href="/auth/login" className="">
+          Login
+        </Link>
+      )}
     </nav>
   );
 }
