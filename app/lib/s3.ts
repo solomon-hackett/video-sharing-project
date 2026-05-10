@@ -13,4 +13,5 @@ export const s3 = new S3Client({
 export const BUCKETS = {
   videos: "solostream-videos",
   thumbnails: "solostream-thumbnails",
+  avatars: "solostream-user-images",
 };
