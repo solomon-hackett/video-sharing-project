@@ -1,11 +1,6 @@
 import Form from "@/app/ui/videos/upload-form";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ [callbackUrl: string]: string }>;
-}) {
-  const callback = (await searchParams).callbackUrl ?? "/";
+export default async function Page() {
   return (
     <main
       style={{
