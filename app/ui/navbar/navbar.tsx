@@ -6,7 +6,7 @@ import { Suspense, useState } from "react";
 import { toast } from "sonner";
 
 import { authClient } from "@/app/lib/auth-client";
-import InboxButton from "@/app/ui/inbox-button";
+import InboxButton from "@/app/ui/navbar/inbox-button";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 
 import Search from "./search";

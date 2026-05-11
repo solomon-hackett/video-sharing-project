@@ -23,7 +23,7 @@ export default function InboxButton() {
           style={{
             position: "absolute",
             top: "calc(100% + 5px)",
-            left: 0,
+            right: 0,
             width: 320,
             zIndex: 500,
           }}
