@@ -1,4 +1,4 @@
-import Form from "@/app/ui/auth/login-form";
+import Form from "@/app/ui/videos/upload-form";
 
 export default async function Page({
   searchParams,
@@ -6,7 +6,6 @@ export default async function Page({
   searchParams: Promise<{ [callbackUrl: string]: string }>;
 }) {
   const callback = (await searchParams).callbackUrl ?? "/";
-
   return (
     <main
       style={{
@@ -48,12 +47,11 @@ export default async function Page({
           pointerEvents: "none",
         }}
       />
-
       {/* Card */}
       <div
         style={{
           width: "100%",
-          maxWidth: "500px",
+          maxWidth: "560px",
           background: "var(--surface)",
           border: "1px solid var(--border)",
           borderRadius: "var(--radius-xl)",
@@ -86,14 +84,10 @@ export default async function Page({
               marginBottom: "var(--space-1)",
             }}
           >
-            Welcome back
+            Upload a new video
           </h1>
-          <p style={{ fontSize: "0.875rem", color: "var(--muted)" }}>
-            Sign in to continue watching
-          </p>
         </div>
-
-        <Form callbackUrl={callback} />
+        <Form />
       </div>
     </main>
   );

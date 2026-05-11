@@ -1,25 +1,124 @@
 "use client";
 import clsx from "clsx";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 import { authClient } from "@/app/lib/auth-client";
+import InboxButton from "@/app/ui/inbox-button";
+import { PlusCircleIcon } from "@heroicons/react/24/outline";
 
 import Search from "./search";
+
+const PLACEHOLDER_IMAGE = "https://placehold.net/avatar.png";
 
 const links = [
   { name: "Home", href: "/" },
   { name: "Trending", href: "/discover" },
   { name: "Following", href: "/following" },
+  {
+    name: "Create",
+    href: "/upload",
+    icon: (
+      <PlusCircleIcon
+        style={{
+          width: 20,
+          height: 20,
+          display: "block",
+          flexShrink: 0,
+          transform: "translateY(0.5px)",
+        }}
+      />
+    ),
+  },
 ];
+
+function SignedInSection({
+  session,
+}: {
+  session: NonNullable<ReturnType<typeof authClient.useSession>["data"]>;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+
+  const accountLinks = [
+    { name: "View Profile", href: `/profile/${session.user.id}` },
+    { name: "Settings", href: "/account/settings" },
+  ];
+
+  const avatarKey =
+    session.user.image && session.user.image !== PLACEHOLDER_IMAGE
+      ? session.user.image
+      : null;
+  const avatarSrc = avatarKey
+    ? `/api/fetch/avatar?key=${encodeURIComponent(avatarKey)}`
+    : "https://placehold.net/avatar.png";
+
+  async function signOut() {
+    setIsOpen(false);
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          toast.success("Signed out successfully.");
+          router.push("/");
+        },
+        onError: () => {
+          toast.error("Failed to sign you out.");
+        },
+      },
+    });
+  }
+
+  return (
+    <div className="flex" style={{ gap: "10px", alignItems: "center" }}>
+      <div className="dropdown">
+        <button className="avatar-button" onClick={() => setIsOpen(!isOpen)}>
+          <img
+            src={avatarSrc}
+            alt={session.user.name ?? "User avatar"}
+            width={32}
+            height={32}
+            className="rounded-full object-cover avatar-sm"
+          />
+        </button>
+        {isOpen && (
+          <div className="dropdown-menu" style={{ minWidth: 180 }}>
+            {accountLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="dropdown-menu__item"
+                onClick={() => setIsOpen(false)}
+              >
+                {link.name}
+              </Link>
+            ))}
+            <div className="dropdown-menu__divider" />
+            <button
+              onClick={signOut}
+              className="w-full dropdown-menu__item danger"
+              style={{
+                border: "none",
+                background: "none",
+                textAlign: "left",
+                cursor: "pointer",
+              }}
+            >
+              Sign Out
+            </button>
+          </div>
+        )}
+      </div>
+      <InboxButton />
+    </div>
+  );
+}
 
 export default function NavBar() {
   const pathname = usePathname();
   const { data: session, isPending } = authClient.useSession();
   const isSignedIn = !!session;
-  const avatarKey = session?.user.image
-    ? new URL(session.user.image).pathname.split("/").pop()
-    : null;
 
   return (
     <nav className="navbar">
@@ -27,41 +126,37 @@ export default function NavBar() {
         SoloStream
       </Link>
       <Search />
-      <div className="navbar__nav">
-        {links.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={clsx("nav-link", { active: pathname === link.href })}
-          >
-            {link.name}
-          </Link>
-        ))}
-      </div>
-      {isPending ? (
-        <div className="bg-gray-300 rounded-full animate-pulse avatar-sm" />
-      ) : isSignedIn && session ? (
-        <div className="bg-gray-300 rounded-full overflow-hidden animate-pulse avatar-sm">
-          <Link href="/account">
-            <img
-              src={
-                avatarKey
-                  ? `/api/fetch/avatar?key=${encodeURIComponent(avatarKey)}`
-                  : "/default-avatar.png"
-              }
-              alt={session.user.name ?? "User avatar"}
-              width={32}
-              height={32}
-              className="opacity-0 rounded-full object-cover transition-opacity duration-200 avatar-sm"
-              onLoad={(e) => {
-                e.currentTarget.classList.remove("opacity-0");
-              }}
-            />
-          </Link>
+      <div className="flex justify-end items-center gap-4">
+        <div className="navbar__nav">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={clsx(
+                "flex justify-center items-center gap-1 nav-link",
+                { active: pathname === link.href },
+              )}
+              style={{ lineHeight: "1" }}
+            >
+              <span className="flex items-center">{link.icon}</span>
+              <span style={{ lineHeight: "1" }}>{link.name}</span>
+            </Link>
+          ))}
         </div>
-      ) : (
-        <Link href="/auth/login">Login</Link>
-      )}
+        {isPending ? (
+          <div className="flex" style={{ gap: "10px", alignItems: "center" }}>
+            <div className="rounded-full avatar-button skeleton" />
+            <div
+              className="rounded-md skeleton"
+              style={{ width: 42, height: 42 }}
+            />
+          </div>
+        ) : isSignedIn && session ? (
+          <SignedInSection key={session.user.id} session={session} />
+        ) : (
+          <Link href="/auth/login">Login</Link>
+        )}
+      </div>
     </nav>
   );
 }

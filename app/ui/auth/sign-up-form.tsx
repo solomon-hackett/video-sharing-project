@@ -1,23 +1,34 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
+import { welcomeNoti } from "@/app/lib/actions";
 import { authClient } from "@/app/lib/auth-client";
 
 export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [emailDialogue, setEmailDialogue] = useState("");
+
   const [name, setName] = useState("");
   const [nameDialogue, setNameDialogue] = useState("");
+
   const [password, setPassword] = useState("");
   const [passwordDialogue, setPasswordDialogue] = useState("");
+
   const [passwordRep, setPasswordRep] = useState("");
   const [passwordRepDialogue, setPasswordRepDialogue] = useState("");
+
   const [visibility, setVisibilty] = useState(false);
+  const [repVisibility, setRepVisibilty] = useState(false);
+
   const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [imageDialogue, setImageDialogue] = useState("");
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -67,15 +78,21 @@ export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
       return;
     }
     setFile(file);
+    setImageDialogue("");
+    setPreview(URL.createObjectURL(file));
   }
-
+  function clearFile() {
+    setFile(null);
+    setPreview(null);
+    setImageDialogue("");
+  }
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     setError("");
     setLoading(true);
 
-    let imageUploadUrl = "https://placehold.net/avatar.png";
+    let imageUploadUrl: string | undefined = undefined;
     if (file) {
       const formData = new FormData();
       formData.append("avatar", file);
@@ -89,10 +106,10 @@ export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
         setLoading(false);
         return;
       }
-      imageUploadUrl = data.url;
+      imageUploadUrl = data.key;
     }
 
-    const { error } = await authClient.signUp.email({
+    const { data, error } = await authClient.signUp.email({
       email,
       password,
       name,
@@ -104,6 +121,10 @@ export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
       setError(error.message ?? "Something went wrong.");
       setLoading(false);
     } else {
+      if (data?.user) {
+        await welcomeNoti(data.user.name, data.user.id);
+      }
+      toast.success("Signed up successfully!");
       router.push(callbackUrl);
     }
   }
@@ -118,13 +139,15 @@ export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
   const hasEmptyFields = !email || !name || !password || !passwordRep || !name;
 
   return (
-    <form onSubmit={handleSubmit} className="form-group">
+    <form onSubmit={handleSubmit} className="form">
       {callbackUrl !== "/" && (
         <p className="form-error">
           You need to login before accessing this page.
         </p>
       )}
-      <div>
+
+      {/* Email */}
+      <div className="form-group">
         <label htmlFor="email" className="form-label">
           Email
         </label>
@@ -134,11 +157,14 @@ export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
           id="email"
           value={email}
           onChange={(e) => handleEmail(e.target.value)}
+          className={`input${emailDialogue ? " input-error" : ""}`}
           required
         />
         {emailDialogue && <p className="form-error">{emailDialogue}</p>}
       </div>
-      <div>
+
+      {/* Display Name */}
+      <div className="form-group">
         <label htmlFor="name" className="form-label">
           Display Name
         </label>
@@ -148,15 +174,18 @@ export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
           id="name"
           value={name}
           onChange={(e) => handleName(e.target.value)}
+          className={`input${nameDialogue ? " input-error" : ""}`}
           required
         />
         {nameDialogue && <p className="form-error">{nameDialogue}</p>}
       </div>
-      <div>
+
+      {/* Password */}
+      <div className="form-group">
         <label htmlFor="password" className="form-label">
           Password
         </label>
-        <div>
+        <div className="flex items-center gap-2">
           <input
             type={visibility ? "text" : "password"}
             name="password"
@@ -166,59 +195,129 @@ export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
               handlePassword(e.target.value);
               handlePasswordRep(passwordRep, e.target.value);
             }}
+            className={`input flex-1${passwordDialogue ? " input-error" : ""}`}
             required
           />
-          <input
-            type="checkbox"
-            name="visibility"
-            checked={visibility}
-            onChange={() => setVisibilty(!visibility)}
-          />
+          <label className="flex items-center gap-2 text-muted text-sm select-none pointer">
+            <input
+              type="checkbox"
+              name="visibility"
+              checked={visibility}
+              onChange={() => setVisibilty(!visibility)}
+              className="sr-only"
+            />
+            <span
+              className={`toggle${visibility ? " active" : ""}`}
+              aria-hidden="true"
+            />
+            Show
+          </label>
         </div>
         {passwordDialogue && <p className="form-error">{passwordDialogue}</p>}
       </div>
-      <div>
+
+      {/* Repeat Password */}
+      <div className="form-group">
         <label htmlFor="passwordRep" className="form-label">
           Repeat Password
         </label>
-        <div>
+        <div className="flex items-center gap-2">
           <input
-            type={visibility ? "text" : "password"}
+            type={repVisibility ? "text" : "password"}
             name="passwordRep"
             id="passwordRep"
             value={passwordRep}
             onChange={(e) => handlePasswordRep(e.target.value)}
+            className={`input flex-1${passwordRepDialogue ? " input-error" : ""}`}
             required
           />
-          <input
-            type="checkbox"
-            name="visibility"
-            checked={visibility}
-            onChange={() => setVisibilty(!visibility)}
-          />
+          <label className="flex items-center gap-2 text-muted text-sm select-none pointer">
+            <input
+              type="checkbox"
+              name="visibility"
+              checked={repVisibility}
+              onChange={() => setRepVisibilty(!repVisibility)}
+              className="sr-only"
+            />
+            <span
+              className={`toggle${repVisibility ? " active" : ""}`}
+              aria-hidden="true"
+            />
+            Show
+          </label>
         </div>
         {passwordRepDialogue && (
           <p className="form-error">{passwordRepDialogue}</p>
         )}
       </div>
-      <div>
-        <label htmlFor="image" className="form-label">
-          Profile Photo
-        </label>
-        <input
-          type="file"
-          name="image"
-          id="image"
-          accept="image/*"
-          onChange={handleImageUpload}
-        />
-        {imageDialogue && <p className="form-error">{imageDialogue}</p>}
+
+      {/* Avatar upload — round */}
+      <div className="form-group">
+        <label className="form-label">Profile Photo (optional)</label>
+        <div className="file-upload">
+          <div
+            className={`file-upload__preview file-upload__preview--round${preview ? " has-file" : ""}`}
+          >
+            {preview ? (
+              <Image src={preview} width={10} height={10} alt="Preview" />
+            ) : (
+              <span>
+                <Image
+                  width={1}
+                  height={1}
+                  src="https://placehold.net/avatar.png"
+                  alt="👤"
+                />
+              </span>
+            )}
+          </div>
+          <div className="file-upload__meta">
+            <label
+              htmlFor="image"
+              className="btn btn-cyan btn-sm file-upload__trigger"
+            >
+              {file ? "Change photo" : "Upload photo"}
+            </label>
+            <input
+              type="file"
+              id="image"
+              name="image"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="file-upload__input"
+            />
+            {file ? (
+              <span className="file-upload__name">
+                {file.name}{" "}
+                <button
+                  type="button"
+                  onClick={clearFile}
+                  aria-label="Remove file"
+                >
+                  ×
+                </button>
+              </span>
+            ) : (
+              <p className="form-hint">JPG, PNG or GIF</p>
+            )}
+            {imageDialogue && <p className="form-error">{imageDialogue}</p>}
+          </div>
+        </div>
       </div>
+
+      {/* Global error */}
       {error && <p className="form-error">{error}</p>}
-      <button type="submit" disabled={loading || hasErrors || hasEmptyFields}>
+
+      {/* Submit */}
+      <button
+        type="submit"
+        disabled={loading || hasErrors || hasEmptyFields}
+        className="mt-2 w-full btn btn-primary btn-lg"
+      >
         {loading ? "Signing up..." : "Sign up"}
       </button>
-      <p>
+
+      <p className="text-muted text-sm text-center">
         Or <Link href={`/auth/login?callbackUrl=${callbackUrl}`}>Sign In</Link>
       </p>
     </form>
