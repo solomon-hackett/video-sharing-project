@@ -2,7 +2,7 @@
 import clsx from "clsx";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { toast } from "sonner";
 
 import { authClient } from "@/app/lib/auth-client";
@@ -125,7 +125,9 @@ export default function NavBar() {
       <Link href="/" className="navbar__logo">
         SoloStream
       </Link>
-      <Search />
+      <Suspense fallback={<div className="skeleton">Loading...</div>}>
+        <Search />
+      </Suspense>
       <div className="flex justify-end items-center gap-4">
         <div className="navbar__nav">
           {links.map((link) => (
