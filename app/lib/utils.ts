@@ -52,28 +52,31 @@ export async function generateThumbnail(
 
 export function generatePrettyDate(timestamp: string | Date | number): string {
   const date = new Date(timestamp);
-  const now = new Date();
-
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
   if (isNaN(date.getTime())) {
     return "invalid date";
   }
 
-  const intervals: { label: string; seconds: number }[] = [
-    { label: "year", seconds: 31536000 },
-    { label: "month", seconds: 2592000 },
-    { label: "week", seconds: 604800 },
-    { label: "day", seconds: 86400 },
-    { label: "hour", seconds: 3600 },
-    { label: "minute", seconds: 60 },
-  ];
+  const diff = Math.floor((date.getTime() - Date.now()) / 1000);
 
-  for (const interval of intervals) {
-    const count = Math.floor(seconds / interval.seconds);
+  const rtf = new Intl.RelativeTimeFormat(undefined, {
+    numeric: "auto",
+  });
 
-    if (count >= 1) {
-      return `${count} ${interval.label}${count > 1 ? "s" : ""} ago`;
+  const intervals = [
+    ["year", 31536000],
+    ["month", 2592000],
+    ["week", 604800],
+    ["day", 86400],
+    ["hour", 3600],
+    ["minute", 60],
+  ] as const;
+
+  for (const [unit, seconds] of intervals) {
+    const value = Math.trunc(diff / seconds);
+
+    if (Math.abs(value) >= 1) {
+      return rtf.format(value, unit);
     }
   }
 

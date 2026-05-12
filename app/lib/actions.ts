@@ -1,10 +1,10 @@
 "use server";
 
-import { sql } from './db';
+import { sql } from "./db";
 
 export async function createPost(
   creatorId: string,
-  creatorName:string,
+  creatorName: string,
   title: string,
   description: string,
   isPublic: boolean,
@@ -17,7 +17,7 @@ export async function createPost(
       const [video] = await sql`
         INSERT INTO videos (user_id, title, description, video_key, thumbnail_key, public)
         VALUES (${creatorId}, ${title}, ${description}, ${videoKey}, ${thumbnailKey}, ${isPublic})
-        RETURNING id
+        RETURNING id, title
       `;
       if (tags.length > 0) {
         await sql`
@@ -25,7 +25,15 @@ export async function createPost(
           SELECT ${video.id}, unnest(${tags}::text[])
         `;
       }
-      
+      const payload = {
+        title: `**${creatorName}** posted a new video!`,
+        message: `${creatorName} posted *${video.title}*. [Watch it now!](/discover/${video.id}/watch)`,
+      };
+      await sql` INSERT INTO notifications (user_id, type, payload)
+          SELECT subscriber_id, 'New Post', ${JSON.stringify(payload)}::jsonb
+          FROM subscriptions
+          WHERE creator_id = ${creatorId}
+          AND notifications = true;`;
     });
     return { data: { message: "Successfully uploaded video." }, error: null };
   } catch (error) {

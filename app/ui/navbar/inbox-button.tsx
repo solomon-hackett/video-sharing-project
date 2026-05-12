@@ -1,15 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import { toast } from 'sonner';
-import useSWR from 'swr';
+import { useEffect, useMemo, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import { toast } from "sonner";
+import useSWR from "swr";
 
-import { useNotificationSync } from '@/app/hooks/notification-sync';
-import { markAllAsRead, markAllAsUnread, markAsRead, markAsUnread } from '@/app/lib/actions';
-import { fetcher } from '@/app/lib/fetcher';
-import { generatePrettyDate } from '@/app/lib/utils';
-import { InboxIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useNotificationSync } from "@/app/hooks/notification-sync";
+import {
+  markAllAsRead,
+  markAllAsUnread,
+  markAsRead,
+  markAsUnread,
+} from "@/app/lib/actions";
+import { fetcher } from "@/app/lib/fetcher";
+import { generatePrettyDate } from "@/app/lib/utils";
+import { InboxIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 import type { Notification } from "@/app/lib/definitions";
 
@@ -133,43 +138,58 @@ export default function InboxButton({ userId }: { userId: string }) {
         <div className="card notification-dropdown">
           {/* HEADER (STICKY) */}
           <div className="notification-header">
-            <h4 className="mb-2">Notifications</h4>
-
-            <button onClick={() => handleMarkAll(allRead)}>
+            <h4>Notifications</h4>
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => handleMarkAll(allRead)}
+            >
               {allRead ? "Mark all as unread" : "Mark all as read"}
             </button>
-
-            <div className="divider" />
           </div>
 
           {/* CONTENT */}
-          {notifications.length === 0 ? (
-            <p className="text-muted text-sm">No notifications yet.</p>
-          ) : (
-            notifications.map((n) => (
-              <div key={n.id} className="mb-2">
-                <button onClick={() => handleToggleRead(n.id, !n.read)}>
-                  {n.read ? "Mark as Unread" : "Mark as Read"}
-                </button>
-
-                <p className="text-muted text-xs">{n.type}</p>
-
-                <h5>
-                  <ReactMarkdown>
-                    {n.payload?.title ?? "No title"}
-                  </ReactMarkdown>
-                </h5>
-
-                <div className="text-sm">
-                  <ReactMarkdown>{n.payload?.message ?? ""}</ReactMarkdown>
-                </div>
-
-                <p className="text-muted text-xs">
-                  {generatePrettyDate(n.created_at)}
+          <div className="notification-content">
+            {notifications.length === 0 ? (
+              <div className="notification-empty">
+                <InboxIcon width={28} className="notification-empty__icon" />
+                <p className="notification-empty__text">No notifications yet</p>
+                <p className="notification-empty__sub">
+                  You&apos;re all caught up
                 </p>
               </div>
-            ))
-          )}
+            ) : (
+              notifications.map((n) => (
+                <div
+                  key={n.id}
+                  className={`notification-item ${!n.read ? "notification-item--unread" : ""}`}
+                >
+                  <div className="flex justify-between items-center gap-2">
+                    <p className="notification-type">{n.type}</p>
+                    <button
+                      className="notification-toggle"
+                      onClick={() => handleToggleRead(n.id, !n.read)}
+                    >
+                      {n.read ? "Mark unread" : "Mark read"}
+                    </button>
+                  </div>
+
+                  <div className="notification-title">
+                    <ReactMarkdown>
+                      {n.payload?.title ?? "No title"}
+                    </ReactMarkdown>
+                  </div>
+
+                  <div className="notification-body">
+                    <ReactMarkdown>{n.payload?.message ?? ""}</ReactMarkdown>
+                  </div>
+
+                  <p className="notification-date">
+                    {generatePrettyDate(n.created_at)}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>

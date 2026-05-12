@@ -1,9 +1,51 @@
 /* ================================================
    SOLOSTREAM — CYBER STREAMING DESIGN SYSTEM
    v2.0
+   ================================================
+
+   TABLE OF CONTENTS
+   -----------------
+   1.  TOKENS (custom properties)
+   2.  RESET
+   3.  TYPOGRAPHY  — base elements
+   4.  TYPOGRAPHY  — utility classes
+   5.  LAYOUT      — containers
+   6.  LAYOUT      — flex helpers
+   7.  LAYOUT      — grid helpers
+   8.  COMPONENTS  — surfaces / cards
+   9.  COMPONENTS  — video cards
+   10. COMPONENTS  — buttons
+   11. COMPONENTS  — forms
+   12. COMPONENTS  — file upload
+   13. COMPONENTS  — tags & toggles
+   14. COMPONENTS  — navigation (navbar, sidebar, tabs)
+   15. COMPONENTS  — badges & pills
+   16. COMPONENTS  — avatar
+   17. COMPONENTS  — channel card
+   18. COMPONENTS  — stat / metric cards
+   19. COMPONENTS  — video player
+   20. COMPONENTS  — upload zone
+   21. COMPONENTS  — progress
+   22. COMPONENTS  — dropdown / menu
+   23. COMPONENTS  — modal
+   24. COMPONENTS  — toast / notifications
+   25. COMPONENTS  — tooltip
+   26. COMPONENTS  — skeleton loaders
+   27. COMPONENTS  — comment / chat
+   28. COMPONENTS  — section headers
+   29. COMPONENTS  — hero
+   30. COMPONENTS  — notification system
+   31. DIVIDERS
+   32. EMPTY STATE
+   33. SCROLLBAR
+   34. KEYFRAMES
+   35. UTILITIES
+   36. RESPONSIVE
+
    ================================================ */
+
 /* ------------------------------------------------
-   TOKENS
+   1. TOKENS
    ------------------------------------------------ */
 :root {
   /* --- Backgrounds --- */
@@ -99,7 +141,7 @@
 }
 
 /* ------------------------------------------------
-   RESET
+   2. RESET
    ------------------------------------------------ */
 *,
 *::before,
@@ -150,7 +192,7 @@ select {
 }
 
 /* ------------------------------------------------
-   TYPOGRAPHY
+   3. TYPOGRAPHY — base elements
    ------------------------------------------------ */
 h1,
 h2,
@@ -186,6 +228,9 @@ p {
   line-height: 1.7;
 }
 
+/* ------------------------------------------------
+   4. TYPOGRAPHY — utility classes
+   ------------------------------------------------ */
 .text-gradient {
   background: var(--grad-brand);
   -webkit-background-clip: text;
@@ -240,6 +285,7 @@ p {
 .font-medium {
   font-weight: 500;
 }
+
 .truncate {
   white-space: nowrap;
   overflow: hidden;
@@ -254,7 +300,7 @@ p {
 }
 
 /* ------------------------------------------------
-   LAYOUT
+   5. LAYOUT — containers
    ------------------------------------------------ */
 .container {
   width: 100%;
@@ -278,7 +324,9 @@ p {
   padding: 0 var(--space-6);
 }
 
-/* Flex helpers */
+/* ------------------------------------------------
+   6. LAYOUT — flex helpers
+   ------------------------------------------------ */
 .flex {
   display: flex;
 }
@@ -289,6 +337,10 @@ p {
 .flex-wrap {
   flex-wrap: wrap;
 }
+.flex-1 {
+  flex: 1;
+}
+
 .items-start {
   align-items: flex-start;
 }
@@ -298,6 +350,7 @@ p {
 .items-end {
   align-items: flex-end;
 }
+
 .justify-start {
   justify-content: flex-start;
 }
@@ -310,6 +363,7 @@ p {
 .justify-between {
   justify-content: space-between;
 }
+
 .gap-1 {
   gap: var(--space-1);
 }
@@ -328,11 +382,10 @@ p {
 .gap-8 {
   gap: var(--space-8);
 }
-.flex-1 {
-  flex: 1;
-}
 
-/* Grid helpers */
+/* ------------------------------------------------
+   7. LAYOUT — grid helpers
+   ------------------------------------------------ */
 .grid {
   display: grid;
 }
@@ -358,7 +411,7 @@ p {
 }
 
 /* ------------------------------------------------
-   SURFACES / CARDS
+   8. COMPONENTS — surfaces / cards
    ------------------------------------------------ */
 .surface {
   background: var(--surface);
@@ -402,7 +455,7 @@ p {
 }
 
 /* ------------------------------------------------
-   VIDEO CARDS
+   9. COMPONENTS — video cards
    ------------------------------------------------ */
 .video-card {
   position: relative;
@@ -538,8 +591,6 @@ p {
   color: var(--subtle);
   margin-top: 2px;
 }
-
-/* Progress bar on video card (watched) */
 .video-card__progress {
   height: 3px;
   background: var(--border);
@@ -550,7 +601,7 @@ p {
 }
 
 /* ------------------------------------------------
-   BUTTONS
+   10. COMPONENTS — buttons
    ------------------------------------------------ */
 .btn {
   display: inline-flex;
@@ -638,14 +689,8 @@ p {
   color: var(--success);
   border-color: var(--success);
 }
-.btn-icon {
-  padding: 9px;
-  border-radius: var(--radius-md);
-}
-.btn-icon-round {
-  padding: 9px;
-  border-radius: var(--radius-full);
-}
+
+/* Size modifiers */
 .btn-sm {
   padding: 6px 12px;
   font-size: 0.78rem;
@@ -657,8 +702,18 @@ p {
   border-radius: var(--radius-lg);
 }
 
+/* Icon buttons */
+.btn-icon {
+  padding: 9px;
+  border-radius: var(--radius-md);
+}
+.btn-icon-round {
+  padding: 9px;
+  border-radius: var(--radius-full);
+}
+
 /* ------------------------------------------------
-   FORMS
+   11. COMPONENTS — forms
    ------------------------------------------------ */
 .input,
 .textarea,
@@ -700,6 +755,7 @@ p {
   background-position: right 12px center;
   padding-right: 36px;
 }
+
 .form {
   display: flex;
   flex-direction: column;
@@ -729,6 +785,7 @@ p {
   text-align: center;
   color: var(--danger);
 }
+
 .input-error {
   border-color: var(--danger) !important;
 }
@@ -751,8 +808,9 @@ p {
   color: var(--muted);
   pointer-events: none;
 }
+
 /* ------------------------------------------------
-   FILE UPLOAD
+   12. COMPONENTS — file upload
    ------------------------------------------------ */
 .file-upload {
   display: flex;
@@ -760,8 +818,6 @@ p {
   width: 100%;
   gap: var(--space-4);
 }
-
-/* Preview area — adapts to shape modifiers */
 .file-upload__preview {
   display: flex;
   align-items: center;
@@ -811,15 +867,12 @@ p {
   aspect-ratio: 16 / 9;
 }
 
-/* Meta — sits beside the preview */
 .file-upload__meta {
   display: flex;
   flex-direction: column;
   flex: 1;
   gap: var(--space-2);
 }
-
-/* Hidden real input, label acts as trigger */
 .file-upload__input {
   display: none;
 }
@@ -827,7 +880,6 @@ p {
   cursor: pointer;
 }
 
-/* File name chip shown after selection */
 .file-upload__name {
   display: inline-flex;
   align-items: center;
@@ -862,8 +914,9 @@ p {
 .file-upload__name button:hover {
   color: var(--danger);
 }
+
 /* ------------------------------------------------
-   TAGS
+   13. COMPONENTS — tags & toggles
    ------------------------------------------------ */
 .tag-input-wrapper {
   display: flex;
@@ -915,7 +968,6 @@ p {
   background: rgba(34, 211, 238, 0.22);
   border-color: var(--cyan);
 }
-
 .tag button {
   display: inline-flex;
   align-items: center;
@@ -939,7 +991,7 @@ p {
   background: rgba(34, 211, 238, 0.2);
 }
 
-/* Variants */
+/* Tag colour variants */
 .tag-purple {
   background: var(--purple-dim);
   color: var(--purple);
@@ -1018,7 +1070,7 @@ p {
   background: var(--surface-3);
 }
 
-/* Toggle / checkbox / radio (custom) */
+/* Toggle */
 .toggle {
   width: 40px;
   height: 22px;
@@ -1048,8 +1100,10 @@ p {
 }
 
 /* ------------------------------------------------
-   NAVIGATION
+   14. COMPONENTS — navigation
    ------------------------------------------------ */
+
+/* Navbar */
 .navbar {
   position: sticky;
   top: 0;
@@ -1152,7 +1206,7 @@ p {
   margin: var(--space-2) 0;
 }
 
-/* Tabs */
+/* Tabs — underline */
 .tabs {
   display: flex;
   gap: 2px;
@@ -1177,7 +1231,7 @@ p {
   border-bottom-color: var(--cyan);
 }
 
-/* Pill tabs */
+/* Tabs — pill */
 .tabs-pill {
   display: flex;
   gap: var(--space-2);
@@ -1205,7 +1259,7 @@ p {
 }
 
 /* ------------------------------------------------
-   BADGES & PILLS
+   15. COMPONENTS — badges & pills
    ------------------------------------------------ */
 .badge {
   display: inline-flex;
@@ -1286,7 +1340,7 @@ p {
 }
 
 /* ------------------------------------------------
-   AVATAR
+   16. COMPONENTS — avatar
    ------------------------------------------------ */
 .avatar {
   border-radius: var(--radius-full);
@@ -1308,26 +1362,22 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 42px;
   height: 42px;
-
   border-radius: var(--radius-full);
-
   background: transparent;
   border: 1px solid transparent;
-
   transition: all var(--ease);
-
   cursor: pointer;
 }
-
 .avatar-button:hover {
   background: var(--surface-2);
   border-color: var(--border);
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
+
+/* Size scale */
 .avatar-xs {
   width: 24px;
   height: 24px;
@@ -1353,7 +1403,7 @@ p {
   height: 112px;
 }
 
-/* Avatar with ring (live / verified) */
+/* Ring variants */
 .avatar-ring {
   box-shadow:
     0 0 0 2px var(--bg),
@@ -1366,7 +1416,7 @@ p {
 }
 
 /* ------------------------------------------------
-   USER / CHANNEL CARD
+   17. COMPONENTS — channel card
    ------------------------------------------------ */
 .channel-card {
   display: flex;
@@ -1385,7 +1435,7 @@ p {
 }
 
 /* ------------------------------------------------
-   STAT / METRIC CARDS
+   18. COMPONENTS — stat / metric cards
    ------------------------------------------------ */
 .stat-card {
   background: var(--surface);
@@ -1420,7 +1470,7 @@ p {
 }
 
 /* ------------------------------------------------
-   VIDEO PLAYER
+   19. COMPONENTS — video player
    ------------------------------------------------ */
 .player-wrapper {
   position: relative;
@@ -1464,7 +1514,7 @@ p {
 }
 
 /* ------------------------------------------------
-   UPLOAD ZONE
+   20. COMPONENTS — upload zone
    ------------------------------------------------ */
 .upload-zone {
   border: 2px dashed var(--border-2);
@@ -1491,7 +1541,7 @@ p {
 }
 
 /* ------------------------------------------------
-   PROGRESS
+   21. COMPONENTS — progress
    ------------------------------------------------ */
 .progress {
   height: 6px;
@@ -1514,6 +1564,7 @@ p {
 .progress__fill-danger {
   background: var(--danger);
 }
+
 .progress-sm {
   height: 3px;
 }
@@ -1522,7 +1573,7 @@ p {
 }
 
 /* ------------------------------------------------
-   DROPDOWN / MENU
+   22. COMPONENTS — dropdown / menu
    ------------------------------------------------ */
 .dropdown {
   position: relative;
@@ -1571,7 +1622,7 @@ p {
 }
 
 /* ------------------------------------------------
-   MODAL
+   23. COMPONENTS — modal
    ------------------------------------------------ */
 .modal-backdrop {
   position: fixed;
@@ -1600,6 +1651,7 @@ p {
 .modal-lg {
   max-width: 720px;
 }
+
 .modal__header {
   display: flex;
   align-items: center;
@@ -1617,7 +1669,7 @@ p {
 }
 
 /* ------------------------------------------------
-   TOAST / NOTIFICATIONS
+   24. COMPONENTS — toast / notifications
    ------------------------------------------------ */
 .toast-container {
   position: fixed;
@@ -1654,7 +1706,7 @@ p {
 }
 
 /* ------------------------------------------------
-   TOOLTIP
+   25. COMPONENTS — tooltip
    ------------------------------------------------ */
 [data-tooltip] {
   position: relative;
@@ -1683,16 +1735,8 @@ p {
 }
 
 /* ------------------------------------------------
-   SKELETON LOADERS
+   26. COMPONENTS — skeleton loaders
    ------------------------------------------------ */
-@keyframes shimmer {
-  0% {
-    background-position: -600px 0;
-  }
-  100% {
-    background-position: 600px 0;
-  }
-}
 .skeleton {
   background: linear-gradient(
     90deg,
@@ -1720,7 +1764,7 @@ p {
 }
 
 /* ------------------------------------------------
-   COMMENT / CHAT
+   27. COMPONENTS — comment / chat
    ------------------------------------------------ */
 .comment {
   display: flex;
@@ -1781,7 +1825,7 @@ p {
 }
 
 /* ------------------------------------------------
-   SECTION HEADERS
+   28. COMPONENTS — section headers
    ------------------------------------------------ */
 .section-header {
   display: flex;
@@ -1813,7 +1857,7 @@ p {
 }
 
 /* ------------------------------------------------
-   HERO
+   29. COMPONENTS — hero
    ------------------------------------------------ */
 .hero {
   position: relative;
@@ -1839,7 +1883,168 @@ p {
 }
 
 /* ------------------------------------------------
-   DIVIDERS
+   30. COMPONENTS — notification system
+   ------------------------------------------------ */
+.notification-wrapper {
+  position: relative;
+}
+
+.notification-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: visible;
+}
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  z-index: var(--z-tooltip);
+  line-height: 1;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  width: 320px;
+  max-height: 70vh;
+  overflow: hidden;
+  z-index: var(--z-dropdown);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.notification-dropdown.card:hover {
+  transform: none;
+  border-color: var(--border);
+  box-shadow: var(--shadow-lg);
+}
+.notification-content {
+  overflow-y: auto;
+  padding: var(--space-3) var(--space-5) var(--space-5);
+  flex: 1;
+}
+.notification-header {
+  position: relative;
+  z-index: 10;
+  border-bottom: 1px solid var(--border);
+  padding: var(--space-4) var(--space-5);
+  background: #0b1220;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  flex-shrink: 0;
+}
+
+.notification-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  transition:
+    background var(--ease),
+    border-color var(--ease);
+  cursor: default;
+}
+.notification-item:hover {
+  background: var(--surface-3);
+  border-color: var(--border);
+}
+.notification-item--unread {
+  background: var(--cyan-dim);
+  border-color: rgba(34, 211, 238, 0.15);
+  border-left: 2px solid var(--cyan);
+}
+.notification-item--unread:hover {
+  background: rgba(34, 211, 238, 0.12);
+}
+
+.notification-type {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+.notification-toggle {
+  align-self: flex-start;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: all var(--ease);
+}
+.notification-toggle:hover {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  background: var(--cyan-dim);
+}
+.notification-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.4;
+}
+.notification-title p {
+  color: var(--text);
+  line-height: inherit;
+}
+.notification-body {
+  font-size: 0.78rem;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+.notification-body p {
+  color: var(--text-2);
+  font-size: inherit;
+  line-height: inherit;
+}
+.notification-date {
+  font-size: 0.68rem;
+  color: var(--subtle);
+  margin-top: var(--space-1);
+}
+
+.notification-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+.notification-empty__icon {
+  color: var(--border-2);
+  margin-bottom: var(--space-1);
+}
+.notification-empty__text {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.notification-empty__sub {
+  font-size: 0.73rem;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------
+   31. DIVIDERS
    ------------------------------------------------ */
 .divider {
   height: 1px;
@@ -1858,7 +2063,7 @@ p {
 }
 
 /* ------------------------------------------------
-   EMPTY STATE
+   32. EMPTY STATE
    ------------------------------------------------ */
 .empty-state {
   display: flex;
@@ -1886,7 +2091,7 @@ p {
 }
 
 /* ------------------------------------------------
-   SCROLLBAR
+   33. SCROLLBAR
    ------------------------------------------------ */
 ::-webkit-scrollbar {
   width: 8px;
@@ -1905,7 +2110,44 @@ p {
 }
 
 /* ------------------------------------------------
-   UTILITY
+   34. KEYFRAMES
+   ------------------------------------------------ */
+@keyframes shimmer {
+  0% {
+    background-position: -600px 0;
+  }
+  100% {
+    background-position: 600px 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pingOnce {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1.6);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-ping-once {
+  animation: pingOnce 0.6s ease-out;
+}
+
+/* ------------------------------------------------
+   35. UTILITIES
    ------------------------------------------------ */
 .hidden {
   display: none;
@@ -1923,6 +2165,7 @@ p {
   clip: rect(0, 0, 0, 0);
   border: 0;
 }
+
 .pointer {
   cursor: pointer;
 }
@@ -1932,6 +2175,7 @@ p {
 .overflow-hidden {
   overflow: hidden;
 }
+
 .relative {
   position: relative;
 }
@@ -1941,18 +2185,21 @@ p {
 .inset-0 {
   inset: 0;
 }
+
 .w-full {
   width: 100%;
 }
 .h-full {
   height: 100%;
 }
+
 .aspect-video {
   aspect-ratio: 16 / 9;
 }
 .aspect-square {
   aspect-ratio: 1;
 }
+
 .rounded-full {
   border-radius: var(--radius-full);
 }
@@ -1962,6 +2209,7 @@ p {
 .rounded-md {
   border-radius: var(--radius-md);
 }
+
 .p-0 {
   padding: 0;
 }
@@ -1977,6 +2225,7 @@ p {
 .p-6 {
   padding: var(--space-6);
 }
+
 .mt-2 {
   margin-top: var(--space-2);
 }
@@ -1995,12 +2244,14 @@ p {
 .mb-6 {
   margin-bottom: var(--space-6);
 }
+
 .text-center {
   text-align: center;
 }
 .text-right {
   text-align: right;
 }
+
 .opacity-50 {
   opacity: 0.5;
 }
@@ -2008,7 +2259,6 @@ p {
   opacity: 0.75;
 }
 
-/* Glow effects (use sparingly) */
 .glow-cyan {
   box-shadow: var(--cyan-glow);
 }
@@ -2017,7 +2267,7 @@ p {
 }
 
 /* ------------------------------------------------
-   RESPONSIVE
+   36. RESPONSIVE
    ------------------------------------------------ */
 @media (max-width: 1024px) {
   .grid-4 {
@@ -2033,16 +2283,20 @@ p {
   .container-xl {
     padding: 0 var(--space-4);
   }
+
   .grid-3,
   .grid-4 {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .grid-2 {
     grid-template-columns: 1fr;
   }
+
   .navbar__search {
     display: none;
   }
+
   .modal {
     border-radius: var(--radius-lg);
   }
@@ -2052,89 +2306,8 @@ p {
   .grid-4 {
     grid-template-columns: 1fr;
   }
+
   .tabs {
     overflow-x: auto;
   }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ------------------------------------------------
-   NOTIFICATIONS (SYSTEM EXTENSION)
-   ------------------------------------------------ */
-
-.notification-wrapper {
-  position: relative;
-}
-
-.notification-button {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  overflow: visible;
-}
-
-.notification-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  transform: translate(0%, 0%); /* or just remove the transform entirely */
-  background: var(--danger);
-  color: #fff;
-  font-size: 0.65rem;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: var(--radius-full);
-  z-index: var(--z-tooltip);
-  line-height: 1;
-}
-
-/* dropdown container */
-.notification-dropdown {
-  position: absolute;
-  top: calc(100% + 5px);
-  right: 0;
-  width: 320px;
-  max-height: 70vh;
-  overflow-y: auto;
-  z-index: var(--z-dropdown);
-}
-
-/* sticky header inside dropdown */
-.notification-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  border-bottom: 1px solid var(--border);
-  margin-top: calc(-1 * var(--space-5)) calc(-1 * var(--space-5)) 0;
-  padding: var(--space-5) var(--space-5) var(--space-2);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  background: rgba(11, 18, 32, 0.95); /* --surface at ~95% opacity */
-}
-
-/* ensures badge animation doesn't affect layout */
-@keyframes pingOnce {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  70% {
-    transform: scale(1.6);
-    opacity: 0.3;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.animate-ping-once {
-  animation: pingOnce 0.6s ease-out;
 }
