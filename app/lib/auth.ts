@@ -1,8 +1,13 @@
-import { betterAuth } from "better-auth";
-import { adminClient } from "better-auth/client/plugins";
-import { admin } from "better-auth/plugins";
+import { betterAuth } from 'better-auth';
+import { adminClient } from 'better-auth/client/plugins';
+import { admin } from 'better-auth/plugins';
+import { Pool } from 'pg';
 
-import { db } from "./db";
+const db = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+  ssl: { rejectUnauthorized: false },
+});
+
 
 export const auth = betterAuth({
   database: db,

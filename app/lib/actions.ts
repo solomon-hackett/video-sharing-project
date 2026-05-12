@@ -1,4 +1,6 @@
 "use server";
+import { constrainedMemory } from 'process';
+
 import { sql } from './db';
 
 export async function createPost(
@@ -41,11 +43,21 @@ export async function welcomeNoti(username: string, userId: string) {
       VALUES (
         ${userId},
         'Welcome',
-        ${JSON.stringify({ message: `Welcome to the SoloStream, ${username}!` })}::jsonb
+        ${JSON.stringify({ title: `Welcome to *SoloStream*, ${username}!`, message: `We hope you enjoy your time on here! Why not try [uploading a video](/upload) to get started` })}::jsonb
       )
     `;
   } catch (error) {
     console.error("Database error:", error);
     return;
+  }
+}
+
+export async function setProfileBio(user: string, text: string) {
+  try {
+    await sql`INSERT INTO profiles (user_id, bio) VALUES (${user}, ${text})`;
+    return "";
+  } catch (error) {
+    console.error("Failed to add bio", error);
+    return "Account created successfully but failed to add bio, please sign in and try again later.";
   }
 }

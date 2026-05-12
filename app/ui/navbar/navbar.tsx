@@ -110,7 +110,7 @@ function SignedInSection({
           </div>
         )}
       </div>
-      <InboxButton />
+      <InboxButton userId={session?.user.id} />
     </div>
   );
 }

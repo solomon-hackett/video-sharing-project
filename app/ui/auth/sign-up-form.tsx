@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
-import { welcomeNoti } from '@/app/lib/actions';
+import { setProfileBio, welcomeNoti } from '@/app/lib/actions';
 import { authClient } from '@/app/lib/auth-client';
+import { uploadViaPresignedUrl } from '@/app/lib/upload';
 
 export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
   const router = useRouter();
@@ -15,6 +16,8 @@ export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
 
   const [name, setName] = useState("");
   const [nameDialogue, setNameDialogue] = useState("");
+
+  const [bio, setBio] = useState("");
 
   const [password, setPassword] = useState("");
   const [passwordDialogue, setPasswordDialogue] = useState("");
@@ -92,28 +95,28 @@ export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
     setError("");
     setLoading(true);
 
-    let imageUploadUrl: string | undefined = undefined;
+    let imageKey: string | undefined = undefined;
     if (file) {
-      const formData = new FormData();
-      formData.append("avatar", file);
-      const res = await fetch("/api/upload/avatar", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setImageDialogue(data.error ?? "Image upload failed.");
+      const fileExt = file.name.split(".").pop() ?? "jpg";
+      const imageUpload = await uploadViaPresignedUrl(
+        file,
+        "avatar",
+        file.type,
+        fileExt,
+      );
+      if (!imageUpload.ok) {
+        setError(imageUpload.error ?? "Image upload failed.");
         setLoading(false);
         return;
       }
-      imageUploadUrl = data.key;
+      imageKey = imageUpload.key!;
     }
 
     const { data, error } = await authClient.signUp.email({
       email,
       password,
       name,
-      image: imageUploadUrl,
+      image: imageKey,
       callbackURL: callbackUrl,
     });
 
@@ -123,6 +126,11 @@ export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
     } else {
       if (data?.user) {
         await welcomeNoti(data.user.name, data.user.id);
+      }
+      const bioError = await setProfileBio(data.user.id, bio);
+      if (bioError) {
+        setError(bioError);
+        return;
       }
       toast.success("Signed up successfully!");
       router.push(callbackUrl);
@@ -178,6 +186,18 @@ export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
           required
         />
         {nameDialogue && <p className="form-error">{nameDialogue}</p>}
+      </div>
+      <div className="form-group">
+        <label htmlFor="bio" className="form-label">
+          Add a little bit about yourself (optional)...
+        </label>
+        <textarea
+          name="bio"
+          id="bio"
+          className="textarea"
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+        ></textarea>
       </div>
 
       {/* Password */}

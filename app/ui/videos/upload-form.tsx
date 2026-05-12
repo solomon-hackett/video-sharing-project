@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 
 import { createPost } from '@/app/lib/actions';
 import { authClient } from '@/app/lib/auth-client';
+import { uploadViaPresignedUrl } from '@/app/lib/upload';
 import { generateThumbnail } from '@/app/lib/utils';
 import { PlayIcon } from '@heroicons/react/24/outline';
 
@@ -34,6 +35,7 @@ export default function UploadForm() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [progress, setProgress] = useState(0);
 
   function handleInput(field: string, value: string) {
     switch (field) {
@@ -123,7 +125,9 @@ export default function UploadForm() {
     e.preventDefault();
 
     setError("");
+    setVidDialogue("");
     setLoading(true);
+    setProgress(0);
 
     if (!file) {
       setVidDialogue("You must upload a video.");
@@ -133,51 +137,47 @@ export default function UploadForm() {
 
     const video = file;
 
+    const userId = session?.user.id;
+    if (!userId) {
+      router.push("/auth/login?callbackUrl=/upload");
+      return;
+    }
+
     const result = await generateThumbnail(video);
     if (!result.ok) {
-      setVidDialogue(result.error);
+      setVideoDialogue(result.error);
       setLoading(false);
       return;
     }
 
     const thumbnail = result.blob;
 
-    let formData = new FormData();
-    formData.append("video", video);
-    let res = await fetch("/api/upload/video", {
-      method: "POST",
-      body: formData,
-    });
-    let upload = await res.json();
-    if (!res.ok) {
-      setVidDialogue(
-        res.status === 413
-          ? "Video is too large to upload."
-          : (upload.error ?? "Video upload failed."),
-      );
+    const videoExt = video.name.split(".").pop() ?? "mp4";
+    const videoUpload = await uploadViaPresignedUrl(
+      video,
+      "video",
+      video.type,
+      videoExt,
+      setProgress,
+    );
+    if (!videoUpload.ok) {
+      setError(videoUpload.error ?? "Video upload failed.");
       setLoading(false);
       return;
     }
-    const videoKey = upload.key;
-
-    const userId = session?.user.id;
-    if (!userId) {
-      router.push("/auth/login?callbackUrl=/upload");
-      return;
-    }
-    formData = new FormData();
-    formData.append("thumbnail", thumbnail);
-    res = await fetch("/api/upload/thumbnail", {
-      method: "POST",
-      body: formData,
-    });
-    upload = await res.json();
-    if (!res.ok) {
-      setVidDialogue(upload.error ?? "Video upload failed.");
+    const videoKey = videoUpload.key!;
+    const thumbnailUpload = await uploadViaPresignedUrl(
+      thumbnail,
+      "thumbnail",
+      "image/jpeg",
+      "jpg",
+    );
+    if (!thumbnailUpload.ok) {
+      setError(thumbnailUpload.error ?? "Thumbnail upload failed.");
       setLoading(false);
       return;
     }
-    const thumbnailKey = upload.key;
+    const thumbnailKey = thumbnailUpload.key!;
 
     const { error } = await createPost(
       userId,
@@ -391,20 +391,32 @@ export default function UploadForm() {
         disabled={!isSubmittable || loading}
       >
         {loading ? (
-          <>
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              style={{ animation: "spin 1s linear infinite" }}
+          <div style={{ width: "100%" }}>
+            <div style={{ marginBottom: "4px" }}>
+              {progress === 0
+                ? "Preparing..."
+                : progress < 100
+                  ? `Uploading... ${progress}%`
+                  : "Saving..."}
+            </div>
+            <div
+              style={{
+                background: "rgba(255,255,255,0.3)",
+                borderRadius: "4px",
+                height: "4px",
+              }}
             >
-              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-            </svg>
-            Uploading...
-          </>
+              <div
+                style={{
+                  background: "white",
+                  borderRadius: "4px",
+                  height: "4px",
+                  width: `${progress}%`,
+                  transition: "width 0.2s ease",
+                }}
+              />
+            </div>
+          </div>
         ) : (
           "Upload video"
         )}

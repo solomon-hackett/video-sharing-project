@@ -726,6 +726,7 @@ p {
 }
 .form-error {
   font-size: 0.75rem;
+  text-align: center;
   color: var(--danger);
 }
 .input-error {
