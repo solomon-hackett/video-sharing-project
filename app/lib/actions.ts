@@ -3,7 +3,8 @@
 import { sql } from './db';
 
 export async function createPost(
-  creator: string,
+  creatorId: string,
+  creatorName:string,
   title: string,
   description: string,
   isPublic: boolean,
@@ -15,7 +16,7 @@ export async function createPost(
     await sql.begin(async (sql) => {
       const [video] = await sql`
         INSERT INTO videos (user_id, title, description, video_key, thumbnail_key, public)
-        VALUES (${creator}, ${title}, ${description}, ${videoKey}, ${thumbnailKey}, ${isPublic})
+        VALUES (${creatorId}, ${title}, ${description}, ${videoKey}, ${thumbnailKey}, ${isPublic})
         RETURNING id
       `;
       if (tags.length > 0) {
@@ -24,6 +25,7 @@ export async function createPost(
           SELECT ${video.id}, unnest(${tags}::text[])
         `;
       }
+      
     });
     return { data: { message: "Successfully uploaded video." }, error: null };
   } catch (error) {

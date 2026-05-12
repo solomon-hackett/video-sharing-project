@@ -138,14 +138,15 @@ export default function UploadForm() {
     const video = file;
 
     const userId = session?.user.id;
-    if (!userId) {
+    const userName = session?.user.name;
+    if (!userId || !userName) {
       router.push("/auth/login?callbackUrl=/upload");
       return;
     }
 
     const result = await generateThumbnail(video);
     if (!result.ok) {
-      setVideoDialogue(result.error);
+      setVidDialogue(result.error);
       setLoading(false);
       return;
     }
@@ -181,6 +182,7 @@ export default function UploadForm() {
 
     const { error } = await createPost(
       userId,
+      userName,
       title,
       desc,
       isPublic,
