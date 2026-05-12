@@ -2062,3 +2062,79 @@ p {
     transform: rotate(360deg);
   }
 }
+
+/* ------------------------------------------------
+   NOTIFICATIONS (SYSTEM EXTENSION)
+   ------------------------------------------------ */
+
+.notification-wrapper {
+  position: relative;
+}
+
+.notification-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  transform: translate(0%, 0%); /* or just remove the transform entirely */
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  z-index: var(--z-tooltip);
+  line-height: 1;
+}
+
+/* dropdown container */
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  width: 320px;
+  max-height: 70vh;
+  overflow-y: auto;
+  z-index: var(--z-dropdown);
+}
+
+/* sticky header inside dropdown */
+.notification-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--border);
+  margin-top: calc(-1 * var(--space-5)) calc(-1 * var(--space-5)) 0;
+  padding: var(--space-5) var(--space-5) var(--space-2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(11, 18, 32, 0.95); /* --surface at ~95% opacity */
+}
+
+/* ensures badge animation doesn't affect layout */
+@keyframes pingOnce {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1.6);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-ping-once {
+  animation: pingOnce 0.6s ease-out;
+}

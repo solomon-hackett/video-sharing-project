@@ -1,5 +1,4 @@
 "use server";
-import { constrainedMemory } from 'process';
 
 import { sql } from './db';
 
@@ -59,5 +58,64 @@ export async function setProfileBio(user: string, text: string) {
   } catch (error) {
     console.error("Failed to add bio", error);
     return "Account created successfully but failed to add bio, please sign in and try again later.";
+  }
+}
+
+export async function markAllAsRead(userId: string) {
+  try {
+    await sql`
+      UPDATE notifications
+      SET read = true
+      WHERE user_id = ${userId};
+    `;
+
+    return { success: true };
+  } catch (error) {
+    console.error("Database error: ", error);
+    return { success: false, error: "Failed to clear notifications." };
+  }
+}
+export async function markAllAsUnread(userId: string) {
+  try {
+    await sql`
+      UPDATE notifications
+      SET read = false
+      WHERE user_id = ${userId}
+      AND created_at >= NOW() - INTERVAL '2 weeks';
+    `;
+    return { success: true };
+  } catch (error) {
+    console.error("Database error: ", error);
+    return { success: false, error: "Failed to mark as unread." };
+  }
+}
+export async function markAsRead(userId: string, notificationId: string) {
+  try {
+    await sql`
+      UPDATE notifications
+      SET read = true
+      WHERE user_id = ${userId}
+      AND id = ${notificationId};
+    `;
+
+    return { success: true };
+  } catch (error) {
+    console.error("Database error: ", error);
+    return { success: false, error: "Failed to mark notification as read" };
+  }
+}
+export async function markAsUnread(userId: string, notificationId: string) {
+  try {
+    await sql`
+      UPDATE notifications
+      SET read = false
+      WHERE user_id = ${userId}
+      AND id = ${notificationId};
+    `;
+
+    return { success: true };
+  } catch (error) {
+    console.error("Database error: ", error);
+    return { success: false, error: "Failed to mark notification as read" };
   }
 }
