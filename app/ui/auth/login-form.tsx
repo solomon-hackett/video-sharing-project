@@ -1,10 +1,10 @@
 "use client";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
-import { authClient } from "@/app/lib/auth-client";
+import { authClient } from '@/app/lib/auth-client';
 
 export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   const [email, setEmail] = useState("");
@@ -245,10 +245,6 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
           Sign up
         </Link>
       </p>
-
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
     </form>
   );
 }

@@ -1,4 +1,4 @@
-import Form from "@/app/ui/videos/upload-form";
+import Form from '@/app/ui/videos/upload-form';
 
 export default async function Page() {
   return (

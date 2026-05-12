@@ -1,12 +1,12 @@
 "use client";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { toast } from 'sonner';
 
-import { welcomeNoti } from "@/app/lib/actions";
-import { authClient } from "@/app/lib/auth-client";
+import { welcomeNoti } from '@/app/lib/actions';
+import { authClient } from '@/app/lib/auth-client';
 
 export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
   const router = useRouter();
@@ -314,7 +314,24 @@ export default function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
         disabled={loading || hasErrors || hasEmptyFields}
         className="mt-2 w-full btn btn-primary btn-lg"
       >
-        {loading ? "Signing up..." : "Sign up"}
+        {loading ? (
+          <>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              style={{ animation: "spin 1s linear infinite" }}
+            >
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+            Signing up…
+          </>
+        ) : (
+          "Sign up"
+        )}
       </button>
 
       <p className="text-muted text-sm text-center">
