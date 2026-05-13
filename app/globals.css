@@ -323,7 +323,10 @@ p {
   margin: 0 auto;
   padding: 0 var(--space-6);
 }
-
+.page-content {
+  padding: var(--space-8) 0 var(--space-16);
+  min-height: calc(100vh - 60px); /* accounts for navbar height */
+}
 /* ------------------------------------------------
    6. LAYOUT — flex helpers
    ------------------------------------------------ */
@@ -409,7 +412,11 @@ p {
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: var(--space-4);
 }
-
+.people-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-3);
+}
 /* ------------------------------------------------
    8. COMPONENTS — surfaces / cards
    ------------------------------------------------ */
@@ -598,6 +605,20 @@ p {
 .video-card__progress-fill {
   height: 100%;
   background: var(--grad-brand);
+}
+.video-card__img {
+  object-fit: cover;
+}
+.video-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+.channel-card__name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text);
 }
 
 /* ------------------------------------------------
@@ -1257,7 +1278,15 @@ p {
   border-color: var(--cyan);
   background: var(--cyan-dim);
 }
-
+.search-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-4);
+}
 /* ------------------------------------------------
    15. COMPONENTS — badges & pills
    ------------------------------------------------ */
@@ -1620,7 +1649,30 @@ p {
   background: var(--border);
   margin: var(--space-2) 0;
 }
-
+.filter-check-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  width: 100%;
+}
+.filter-check-input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cyan);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-right: var(--space-3);
+}
+.filter-tags-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--border);
+  margin-left: var(--space-3);
+  display: flex;
+  flex-direction: column;
+}
 /* ------------------------------------------------
    23. COMPONENTS — modal
    ------------------------------------------------ */
@@ -1855,7 +1907,16 @@ p {
 .section-link:hover {
   color: var(--purple);
 }
-
+.search-page-header {
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+.search-page-header h2 {
+  font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+  color: var(--text-2);
+  font-weight: 500;
+}
 /* ------------------------------------------------
    29. COMPONENTS — hero
    ------------------------------------------------ */
@@ -2265,7 +2326,16 @@ p {
 .glow-purple {
   box-shadow: var(--purple-glow);
 }
-
+.controls-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+.controls-icon-xs {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+}
 /* ------------------------------------------------
    36. RESPONSIVE
    ------------------------------------------------ */

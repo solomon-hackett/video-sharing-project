@@ -1,8 +1,9 @@
 "use client";
+
 import clsx from 'clsx';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { authClient } from '@/app/lib/auth-client';
@@ -41,9 +42,27 @@ function SignedInSection({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
 
   const accountLinks = [
-    { name: "View Profile", href: `/profile/${session.user.id}` },
+    { name: "View Profile", href: `/account/profile/${session.user.id}/view` },
     { name: "Settings", href: "/account/settings" },
   ];
 
@@ -72,7 +91,7 @@ function SignedInSection({
 
   return (
     <div className="flex" style={{ gap: "10px", alignItems: "center" }}>
-      <div className="dropdown">
+      <div className="dropdown" ref={wrapperRef}>
         <button className="avatar-button" onClick={() => setIsOpen(!isOpen)}>
           <img
             src={avatarSrc}

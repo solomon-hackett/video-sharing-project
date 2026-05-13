@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const object = await s3.send(
-      new GetObjectCommand({ Bucket: BUCKETS.avatars, Key: key }),
+      new GetObjectCommand({ Bucket: BUCKETS.thumbnails, Key: key }),
     );
     const buffer = await object.Body!.transformToByteArray();
     return new Response(buffer.buffer as ArrayBuffer, {
@@ -23,12 +23,10 @@ export async function GET(req: NextRequest) {
       err instanceof Error &&
       (err as { Code?: string }).Code === "NoSuchKey"
     ) {
-      return NextResponse.redirect(
-        new URL("https://placehold.net/avatar.png", req.url),
-      );
+      return NextResponse.json({ error: "NoSuchKey" }, { status: 400 });
     }
     return NextResponse.json(
-      { error: "Failed to fetch avatar" },
+      { error: "Failed to fetch thumbnail" },
       { status: 500 },
     );
   }

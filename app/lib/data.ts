@@ -1,9 +1,18 @@
+import { notFound } from 'next/navigation';
+
 import { sql } from './db';
-import { Notification } from './definitions';
+import { Notification, ProfileSearchResult, Video, VideoSearchResult } from './definitions';
 import { generatePrettyDate } from './utils';
 
+const SORT_CLAUSES = {
+  "date-asc": sql`ORDER BY videos.created_at ASC`,
+  "date-desc": sql`ORDER BY videos.created_at DESC`,
+} as const;
+
+type SortKey = keyof typeof SORT_CLAUSES;
+
 export async function fetchUserNotifications(userId: string) {
-  const data = await sql<Notification[]>`
+  return await sql<Notification[]>`
     SELECT *
     FROM notifications
     WHERE user_id = ${userId}
@@ -13,6 +22,148 @@ export async function fetchUserNotifications(userId: string) {
       )
     ORDER BY created_at DESC;
   `;
+}
 
-  return data;
+export async function fetchSearchResults(
+  query: string,
+  sort: string,
+  filters: string[],
+) {
+  const showPeople = filters.includes("people");
+  const showVideos = filters.includes("videos");
+
+  const orderBy =
+    SORT_CLAUSES[sort in SORT_CLAUSES ? (sort as SortKey) : "date-desc"];
+
+  const searchQuery = `%${query}%`;
+  const sqlFilters = filters.filter((f) => f !== "people" && f !== "videos");
+
+  const searchVideosQuery = async () =>
+    sql<VideoSearchResult[]>`
+      SELECT 
+        videos.id,
+        videos.title,
+        videos.description,
+        videos.thumbnail_key,
+        videos.created_at,
+        "user".id AS creator_id,
+        "user".name AS creator_name,
+        "user".image AS creator_image,
+        array_agg(video_tags.tag) FILTER (WHERE video_tags.tag IS NOT NULL) AS tags
+      FROM videos 
+      JOIN "user" ON "user".id = videos.user_id
+      LEFT JOIN video_tags ON video_tags.video_id = videos.id
+      WHERE
+        (
+          videos.title ILIKE ${searchQuery} OR
+          videos.description ILIKE ${searchQuery} OR
+          "user".name ILIKE ${searchQuery} OR
+          video_tags.tag ILIKE ${searchQuery}
+        )
+        AND public = true
+        ${sqlFilters.length > 0 ? sql`AND video_tags.tag IN ${sql(sqlFilters)}` : sql``}
+      GROUP BY 
+        videos.id,
+        videos.title,
+        videos.description,
+        videos.thumbnail_key,
+        videos.created_at,
+        "user".id,
+        "user".name,
+        "user".image
+      ${orderBy};
+    `;
+
+  const searchPeopleQuery = async () =>
+    sql<ProfileSearchResult[]>`
+      SELECT 
+        "user".id,
+        "user".name,
+        "user".image,
+        profiles.bio
+      FROM "user"
+      LEFT JOIN profiles ON profiles.user_id = "user".id
+      WHERE 
+        "user".name ILIKE ${searchQuery} OR
+        profiles.bio ILIKE ${searchQuery}
+      LIMIT 15;
+    `;
+  const transformVideo = (video: VideoSearchResult) => ({
+    ...video,
+    created_at: generatePrettyDate(video.created_at),
+  });
+
+  if ((showPeople && showVideos) || (!showPeople && !showVideos)) {
+    const people = await searchPeopleQuery();
+    const videosRaw = await searchVideosQuery();
+
+    const videos = videosRaw.map(transformVideo);
+
+    const tags = Array.from(new Set(videos.flatMap((v) => v.tags ?? [])));
+
+    return { people, videos, tags };
+  }
+
+  if (showPeople) {
+    const people = await searchPeopleQuery();
+    return { people, videos: [], tags: [] };
+  }
+
+  const videosRaw = await searchVideosQuery();
+  const videos = videosRaw.map(transformVideo);
+
+  const tags = Array.from(new Set(videos.flatMap((v) => v.tags ?? [])));
+
+  return { people: [], videos, tags };
+}
+
+export async function fetchVideoById(
+  videoId: string,
+  userId: string | undefined,
+) {
+  try {
+    const video = await sql<Video[]>` 
+  SELECT 
+  videos.id,
+  videos.title,
+  videos.description,
+  videos.video_key as key,
+  videos.created_at,
+  videos.public::boolean AS "isPublic",
+  "user".id AS creator_id,
+  "user".name AS creator_name,
+  "user".image AS creator_image,
+  array_agg(video_tags.tag) FILTER (WHERE video_tags.tag IS NOT NULL) AS tags
+  FROM videos 
+  JOIN "user" ON "user".id = videos.user_id
+  LEFT JOIN video_tags ON video_tags.video_id = videos.id
+  WHERE videos.id = ${videoId}
+  GROUP BY 
+  videos.id,
+  videos.title,
+  videos.description,
+  videos.video_key,
+  videos.created_at,
+  "user".id,
+  "user".name,
+  "user".image;
+  `;
+    const vid = video[0];
+
+    if (!vid) notFound();
+
+    const isOwner = vid.creator_id === userId;
+    const canView = vid.isPublic || isOwner;
+
+    if (!canView) {
+      return null;
+    }
+
+    return {
+      ...vid,
+      created_at: generatePrettyDate(vid.created_at),
+    };
+  } catch {
+    notFound();
+  }
 }

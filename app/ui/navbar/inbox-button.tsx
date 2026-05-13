@@ -1,20 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import { toast } from "sonner";
-import useSWR from "swr";
+import Image from 'next/image';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import { toast } from 'sonner';
+import useSWR from 'swr';
 
-import { useNotificationSync } from "@/app/hooks/notification-sync";
-import {
-  markAllAsRead,
-  markAllAsUnread,
-  markAsRead,
-  markAsUnread,
-} from "@/app/lib/actions";
-import { fetcher } from "@/app/lib/fetcher";
-import { generatePrettyDate } from "@/app/lib/utils";
-import { InboxIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { useNotificationSync } from '@/app/hooks/notification-sync';
+import { markAllAsRead, markAllAsUnread, markAsRead, markAsUnread } from '@/app/lib/actions';
+import { fetcher } from '@/app/lib/fetcher';
+import { generatePrettyDate } from '@/app/lib/utils';
+import { InboxIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 import type { Notification } from "@/app/lib/definitions";
 
@@ -22,6 +18,7 @@ export default function InboxButton({ userId }: { userId: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [pulse, setPulse] = useState(false);
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const prevUnreadRef = useRef(0);
 
   const { data: notifications = [], mutate } = useSWR<Notification[]>(
@@ -33,9 +30,10 @@ export default function InboxButton({ userId }: { userId: string }) {
     },
   );
 
-  // -----------------------------
-  // DERIVED STATE (single source of truth)
-  // -----------------------------
+  // -----------------------------------
+  // DERIVED STATE
+  // -----------------------------------
+
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.read).length,
     [notifications],
@@ -43,42 +41,71 @@ export default function InboxButton({ userId }: { userId: string }) {
 
   const allRead = notifications.length > 0 && unreadCount === 0;
 
-  // IMPORTANT: hide badge when open
   const showBadge = unreadCount > 0 && !isOpen;
 
   const displayCount = unreadCount > 9 ? "9+" : unreadCount;
 
-  // -----------------------------
-  // CROSS TAB SYNC
-  // -----------------------------
+  // -----------------------------------
+  // CLICK OUTSIDE
+  // -----------------------------------
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  // -----------------------------------
+  // SYNC
+  // -----------------------------------
+
   const { broadcastSync } = useNotificationSync(() =>
     mutate(undefined, { revalidate: true }),
   );
 
-  // -----------------------------
-  // PULSE ON NEW NOTIFICATIONS
-  // -----------------------------
+  // -----------------------------------
+  // PULSE
+  // -----------------------------------
+
   useEffect(() => {
     const prev = prevUnreadRef.current;
 
     if (unreadCount > prev) {
       setPulse(true);
+
       const t = setTimeout(() => setPulse(false), 600);
+
+      prevUnreadRef.current = unreadCount;
+
       return () => clearTimeout(t);
     }
 
     prevUnreadRef.current = unreadCount;
   }, [unreadCount]);
 
-  // -----------------------------
+  // -----------------------------------
   // ACTIONS
-  // -----------------------------
+  // -----------------------------------
+
   async function handleMarkAll(toggleToUnread: boolean) {
     const res = toggleToUnread
       ? await markAllAsUnread(userId)
       : await markAllAsRead(userId);
 
-    if (!res.success) return toast.error(res.error);
+    if (!res.success) {
+      return toast.error(res.error);
+    }
 
     toast.success(
       toggleToUnread ? "Marked all as unread" : "Marked all as read",
@@ -100,7 +127,9 @@ export default function InboxButton({ userId }: { userId: string }) {
       ? await markAsRead(userId, id)
       : await markAsUnread(userId, id);
 
-    if (!res.success) return toast.error(res.error);
+    if (!res.success) {
+      return toast.error(res.error);
+    }
 
     toast.success(read ? "Marked as read" : "Marked as unread");
 
@@ -112,12 +141,32 @@ export default function InboxButton({ userId }: { userId: string }) {
     broadcastSync();
   }
 
-  // -----------------------------
+  // -----------------------------------
+  // SAFE AVATAR RESOLVER
+  // -----------------------------------
+
+  function getAvatarSrc(key?: string) {
+    if (typeof key !== "string") {
+      return "https://placehold.net/avatar.png";
+    }
+
+    const trimmed = key.trim();
+
+    if (!trimmed) {
+      return "https://placehold.net/avatar.png";
+    }
+
+    return `/api/fetch/avatar?key=${encodeURIComponent(trimmed)}`;
+  }
+
+  // -----------------------------------
   // UI
-  // -----------------------------
+  // -----------------------------------
+
   return (
-    <div className="notification-wrapper">
+    <div className="notification-wrapper" ref={wrapperRef}>
       {/* BUTTON */}
+
       <button
         onClick={() => setIsOpen((v) => !v)}
         className="btn btn-ghost notification-button"
@@ -134,11 +183,14 @@ export default function InboxButton({ userId }: { userId: string }) {
       </button>
 
       {/* DROPDOWN */}
+
       {isOpen && (
         <div className="card notification-dropdown">
-          {/* HEADER (STICKY) */}
+          {/* HEADER */}
+
           <div className="notification-header">
             <h4>Notifications</h4>
+
             <button
               className="btn btn-ghost btn-sm"
               onClick={() => handleMarkAll(allRead)}
@@ -148,11 +200,14 @@ export default function InboxButton({ userId }: { userId: string }) {
           </div>
 
           {/* CONTENT */}
+
           <div className="notification-content">
             {notifications.length === 0 ? (
               <div className="notification-empty">
                 <InboxIcon width={28} className="notification-empty__icon" />
+
                 <p className="notification-empty__text">No notifications yet</p>
+
                 <p className="notification-empty__sub">
                   You&apos;re all caught up
                 </p>
@@ -161,10 +216,13 @@ export default function InboxButton({ userId }: { userId: string }) {
               notifications.map((n) => (
                 <div
                   key={n.id}
-                  className={`notification-item ${!n.read ? "notification-item--unread" : ""}`}
+                  className={`notification-item ${
+                    !n.read ? "notification-item--unread" : ""
+                  }`}
                 >
                   <div className="flex justify-between items-center gap-2">
                     <p className="notification-type">{n.type}</p>
+
                     <button
                       className="notification-toggle"
                       onClick={() => handleToggleRead(n.id, !n.read)}
@@ -173,15 +231,35 @@ export default function InboxButton({ userId }: { userId: string }) {
                     </button>
                   </div>
 
+                  {/* TITLE */}
+
                   <div className="notification-title">
                     <ReactMarkdown>
                       {n.payload?.title ?? "No title"}
                     </ReactMarkdown>
                   </div>
 
+                  {/* BODY */}
+
                   <div className="notification-body">
-                    <ReactMarkdown>{n.payload?.message ?? ""}</ReactMarkdown>
+                    <ReactMarkdown>{n.payload?.message}</ReactMarkdown>
                   </div>
+
+                  {/* CREATOR IMAGE */}
+
+                  {n.type === "New Post" && (
+                    <div className="mt-2">
+                      <Image
+                        src={getAvatarSrc(n.payload?.creator_image)}
+                        alt="Creator Image"
+                        width={40}
+                        height={40}
+                        className="rounded-full object-cover"
+                      />
+                    </div>
+                  )}
+
+                  {/* DATE */}
 
                   <p className="notification-date">
                     {generatePrettyDate(n.created_at)}

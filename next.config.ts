@@ -8,7 +8,21 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
-    remotePatterns: [new URL("https://placehold.net/**")],
+    remotePatterns: [
+      new URL("https://placehold.net/**"),
+      new URL("https://solostream.ddns.net"),
+    ],
+    localPatterns: [
+      {
+        pathname: "/api/fetch/avatar",
+      },
+      {
+        pathname: "/api/fetch/thumbnail",
+      },
+      {
+        pathname: "/api/fetch/video",
+      },
+    ],
   },
 };
 

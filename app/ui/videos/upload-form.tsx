@@ -139,7 +139,8 @@ export default function UploadForm() {
 
     const userId = session?.user.id;
     const userName = session?.user.name;
-    if (!userId || !userName) {
+    const userImage = session?.user.image;
+    if (!userId || !userName || !userImage) {
       router.push("/auth/login?callbackUrl=/upload");
       return;
     }
@@ -183,6 +184,7 @@ export default function UploadForm() {
     const { error } = await createPost(
       userId,
       userName,
+      userImage,
       title,
       desc,
       isPublic,
