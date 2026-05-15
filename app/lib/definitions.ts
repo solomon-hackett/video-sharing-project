@@ -53,8 +53,21 @@ export type Comment = {
   poster_id: string;
   poster_name: string;
   poster_image: string;
-  parent_comment_id: string | undefined;
+  parent_comment_id: string | null;
   created_at: string;
   isLiked: boolean;
   likes: number;
+};
+
+export type ParentComment = {
+  id: string;
+  content: string;
+  poster_id: string;
+  poster_name: string;
+  poster_image: string;
+  parent_comment_id: string | null;
+  created_at: string;
+  isLiked: boolean;
+  likes: number;
+  replies: Comment[];
 };

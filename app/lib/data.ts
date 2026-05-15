@@ -176,7 +176,8 @@ export async function fetchVideoById(
     video_comments.created_at,
     "user".id,
     "user".name,
-    "user".image;`,
+    "user".image
+    ORDER BY created_at ASC;`,
     ]);
     const vid = video_data[0];
 

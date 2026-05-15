@@ -50,6 +50,7 @@ export async function createPost(
     };
   }
 }
+export async function deleteVideo(userId: string, videoId: string) {}
 export async function likePost(userId: string, videoId: string) {
   try {
     await sql`INSERT INTO video_likes (user_id, video_id) VALUES (${userId}, ${videoId});`;
@@ -71,14 +72,14 @@ export async function unlikePost(userId: string, videoId: string) {
     await sql`DELETE FROM video_likes WHERE user_id = ${userId} AND video_id = ${videoId};`;
     revalidatePath("/", "layout");
     return {
-      data: { message: "Video liked successfully." },
+      data: { message: "Video unliked successfully." },
       error: null,
     };
   } catch (err) {
     console.error("Database error: ", err);
     return {
       data: {},
-      error: { message: "Failed to like video, please try again later." },
+      error: { message: "Failed to unlike video, please try again later." },
     };
   }
 }
@@ -103,6 +104,54 @@ export async function createComment(
     return {
       data: {},
       error: { message: "Failed to post comment, please try again later." },
+    };
+  }
+}
+export async function deleteComment(userId: string, commentId: string) {
+  try {
+    await sql`DELETE FROM video_comments WHERE user_id = ${userId} AND id = ${commentId};`;
+    revalidatePath("/", "layout");
+    return {
+      data: { message: "Comment deleted successfully." },
+      error: null,
+    };
+  } catch (err) {
+    console.error("Database error: ", err);
+    return {
+      data: {},
+      error: { message: "Failed to delete comment, please try again later." },
+    };
+  }
+}
+export async function likeComment(userId: string, commentId: string) {
+  try {
+    await sql`INSERT INTO video_comment_likes (user_id, comment_id) VALUES (${userId}, ${commentId});`;
+    revalidatePath("/", "layout");
+    return {
+      data: { message: "Comment liked successfully." },
+      error: null,
+    };
+  } catch (err) {
+    console.error("Database error: ", err);
+    return {
+      data: {},
+      error: { message: "Failed to like comment, please try again later." },
+    };
+  }
+}
+export async function unlikeComment(userId: string, commentId: string) {
+  try {
+    await sql`DELETE FROM video_comment_likes WHERE user_id = ${userId} AND comment_id = ${commentId};`;
+    revalidatePath("/", "layout");
+    return {
+      data: { message: "Comment unliked successfully." },
+      error: null,
+    };
+  } catch (err) {
+    console.error("Database error: ", err);
+    return {
+      data: {},
+      error: { message: "Failed to like comment, please try again later." },
     };
   }
 }
