@@ -50,7 +50,22 @@ export async function createPost(
     };
   }
 }
-export async function deleteVideo(userId: string, videoId: string) {}
+export async function deleteVideo(userId: string, videoId: string) {
+  try {
+    await sql`DELETE FROM video_comments WHERE user_id = ${userId} AND id = ${videoId};`;
+    revalidatePath("/", "layout");
+    return {
+      data: { message: "Video deleted successfully." },
+      error: null,
+    };
+  } catch (err) {
+    console.error("Database error: ", err);
+    return {
+      data: {},
+      error: { message: "Failed to delete video, please try again later." },
+    };
+  }
+}
 export async function likePost(userId: string, videoId: string) {
   try {
     await sql`INSERT INTO video_likes (user_id, video_id) VALUES (${userId}, ${videoId});`;
