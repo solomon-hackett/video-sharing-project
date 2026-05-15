@@ -1,3 +1,6 @@
+export const maxDuration = 300;
+export const dynamic = "force-dynamic";
+
 import { execFile } from "child_process";
 import ffmpegBin from "ffmpeg-static";
 import { createReadStream, createWriteStream, unlink } from "fs";
