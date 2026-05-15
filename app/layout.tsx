@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/next";
 
 import NavBar from "@/app/ui/navbar/navbar";
 
@@ -35,6 +36,7 @@ export default function RootLayout({
             },
           }}
         />
+        <Analytics />
       </body>
     </html>
   );
