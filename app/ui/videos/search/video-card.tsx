@@ -1,8 +1,8 @@
 "use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function VideoCard({
   id,
@@ -69,7 +69,7 @@ export default function VideoCard({
           <p className="line-clamp-2 video-card__title">{title}</p>
 
           <Link
-            href={`/account/profile/${creator_id}/view`}
+            href={`/profile/${creator_id}/view`}
             className="video-card__channel"
             onClick={(e) => e.stopPropagation()}
           >

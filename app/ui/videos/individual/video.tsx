@@ -1,27 +1,40 @@
 "use client";
-import Image from 'next/image';
-import Link from 'next/link';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 
 import {
-    createComment, deleteComment, deleteVideo, likeComment, likePost, unlikeComment, unlikePost
-} from '@/app/lib/actions';
+  createComment,
+  deleteComment,
+  deleteVideo,
+  likeComment,
+  likePost,
+  unlikeComment,
+  unlikePost,
+} from "@/app/lib/actions";
 import {
-    ChatBubbleLeftEllipsisIcon as ChatBubbleIcon, HeartIcon as EmptyHeartIcon,
-    PaperAirplaneIcon as SendIcon, TrashIcon, XMarkIcon
-} from '@heroicons/react/24/outline';
-import { HeartIcon } from '@heroicons/react/24/solid';
+  ChatBubbleLeftEllipsisIcon as ChatBubbleIcon,
+  HeartIcon as EmptyHeartIcon,
+  PaperAirplaneIcon as SendIcon,
+  TrashIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import { HeartIcon } from "@heroicons/react/24/solid";
 
 import type { User } from "better-auth";
 
-import type { Video, Comment, ParentComment } from "@/app/lib/definitions";
+import type {
+  IndividualVideo,
+  Comment,
+  ParentComment,
+} from "@/app/lib/definitions";
 export default function Video({
   video,
   user,
   comments,
 }: {
-  video: Video;
+  video: IndividualVideo;
   user: User | undefined;
   comments: Comment[];
 }) {
@@ -232,7 +245,7 @@ export default function Video({
                   height={32}
                 />
                 <h3>
-                  <Link href={`/account/profile/${comment.poster_id}/view`}>
+                  <Link href={`/profile/${comment.poster_id}/view`}>
                     {comment.poster_name}
                   </Link>
                 </h3>
@@ -282,7 +295,7 @@ export default function Video({
                       height={32}
                     />
                     <h3>
-                      <Link href={`/account/profile/${comment.poster_id}/view`}>
+                      <Link href={`/profile/${comment.poster_id}/view`}>
                         {comment.poster_name}
                       </Link>
                     </h3>
@@ -320,10 +333,7 @@ export default function Video({
         )}
       </div>
       {/* Creator card */}
-      <Link
-        href={`/account/profile/${video.creator_id}/view`}
-        className="channel-card"
-      >
+      <Link href={`/profile/${video.creator_id}/view`} className="channel-card">
         <Image
           className="avatar avatar-md"
           src={`/api/fetch/avatar?key=${video.creator_image}`}

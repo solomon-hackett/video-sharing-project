@@ -1,16 +1,16 @@
 "use client";
 
-import clsx from 'clsx';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { Suspense, useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
+import clsx from "clsx";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
-import { authClient } from '@/app/lib/auth-client';
-import InboxButton from '@/app/ui/navbar/inbox-button';
-import { PlusCircleIcon } from '@heroicons/react/24/outline';
+import { authClient } from "@/app/lib/auth-client";
+import InboxButton from "@/app/ui/navbar/inbox-button";
+import { PlusCircleIcon } from "@heroicons/react/24/outline";
 
-import Search from './search';
+import Search from "./search";
 
 const PLACEHOLDER_IMAGE = "https://placehold.net/avatar.png";
 
@@ -62,7 +62,7 @@ function SignedInSection({
   }, [isOpen]);
 
   const accountLinks = [
-    { name: "View Profile", href: `/account/profile/${session.user.id}/view` },
+    { name: "View Profile", href: `/profile/${session.user.id}/view` },
     { name: "Settings", href: "/account/settings" },
   ];
 

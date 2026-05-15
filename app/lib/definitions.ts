@@ -32,7 +32,7 @@ export type VideoSearchResult = {
   tags: Array<string>;
 };
 
-export type Video = {
+export type IndividualVideo = {
   id: string;
   title: string;
   description: string;
@@ -45,6 +45,11 @@ export type Video = {
   tags: Array<string>;
   isLiked: boolean;
   likes: number;
+};
+export type Video = IndividualVideo & {
+  tag_overlap: number;
+  like_count: number;
+  comment_count: number;
 };
 
 export type Comment = {

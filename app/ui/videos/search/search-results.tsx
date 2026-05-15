@@ -1,10 +1,10 @@
-import Image from 'next/image';
-import Link from 'next/link';
+import Image from "next/image";
+import Link from "next/link";
 
-import { fetchSearchResults } from '@/app/lib/data';
+import { fetchSearchResults } from "@/app/lib/data";
 
-import SearchControls from './search-controls';
-import VideoCard from './video-card';
+import SearchControls from "./search-controls";
+import VideoCard from "./video-card";
 
 export default async function SearchResults({
   query,
@@ -39,7 +39,7 @@ export default async function SearchResults({
             {people.map((person) => (
               <Link
                 key={person.id}
-                href={`/account/profile/${person.id}/view`}
+                href={`/profile/${person.id}/view`}
                 className="channel-card"
               >
                 <Image
