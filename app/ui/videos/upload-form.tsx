@@ -1,15 +1,15 @@
 "use client";
 
-import { Filter } from 'bad-words';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { Filter } from "bad-words";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
-import { createPost } from '@/app/lib/actions';
-import { authClient } from '@/app/lib/auth-client';
-import { uploadViaPresignedUrl } from '@/app/lib/upload';
-import { generateThumbnail } from '@/app/lib/utils';
-import { PlayIcon } from '@heroicons/react/24/outline';
+import { createPost } from "@/app/lib/actions";
+import { authClient } from "@/app/lib/auth-client";
+import { uploadViaPresignedUrl } from "@/app/lib/upload";
+import { generateThumbnail } from "@/app/lib/utils";
+import { PlayIcon } from "@heroicons/react/24/outline";
 
 export default function UploadForm() {
   const router = useRouter();
@@ -140,7 +140,7 @@ export default function UploadForm() {
     const userId = session?.user.id;
     const userName = session?.user.name;
     const userImage = session?.user.image;
-    if (!userId || !userName || !userImage) {
+    if (!userId || !userName) {
       router.push("/auth/login?callbackUrl=/upload");
       return;
     }

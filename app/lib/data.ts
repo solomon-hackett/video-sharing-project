@@ -1,4 +1,3 @@
-import { nullable } from "better-auth";
 import { notFound } from "next/navigation";
 
 import { sql } from "./db";
@@ -137,6 +136,7 @@ export async function fetchVideoById(
         videos.title,
         videos.description,
         videos.video_key AS key,
+        videos.thumbnail_key,
         videos.created_at,
         videos.public::boolean AS "isPublic",
         "user".id AS creator_id,
@@ -219,7 +219,7 @@ export async function fetchFYP(
   cursor: string | null,
 ) {
   const decoded = cursor ? JSON.parse(atob(cursor)) : null;
-  const { tag_overlap, like_count, comment_count, id } = decoded ?? {};
+  const { tag_overlap, like_count, comment_count, created_at } = decoded ?? {};
   try {
     const videos = await sql<Video[]>`
   ${
@@ -233,11 +233,22 @@ export async function fetchFYP(
     ),
     scored_videos AS (
       SELECT
-        videos.*,
+        videos.id,
+        videos.user_id,
+        videos.title,
+        videos.description,
+        videos.video_key AS key,
+        videos.thumbnail_key,
+        videos.public,
+        videos.created_at,
+        "user".id AS poster_id,
+        "user".name AS poster_name,
+        "user".image AS poster_image,
         COUNT(CASE WHEN video_tags.tag IN (SELECT tag FROM taste_profile) THEN 1 END) AS tag_overlap,
         COALESCE(likes.like_count, 0) AS like_count,
         COALESCE(comments.comment_count, 0) AS comment_count
       FROM videos
+      JOIN "user" ON "user".id = videos.user_id
       LEFT JOIN video_tags ON video_tags.video_id = videos.id
       LEFT JOIN (
         SELECT video_id, COUNT(*) AS like_count
@@ -249,16 +260,17 @@ export async function fetchFYP(
         FROM video_comments
         GROUP BY video_id
       ) AS comments ON comments.video_id = videos.id
-      GROUP BY videos.id, likes.like_count, comments.comment_count
+      GROUP BY videos.id, "user".id, likes.like_count, comments.comment_count
     )
     SELECT * FROM scored_videos
+    WHERE "public" = true
     ${
       cursor
         ? sql`
-      WHERE tag_overlap < ${tag_overlap}
+      AND (tag_overlap < ${tag_overlap}
       OR (tag_overlap = ${tag_overlap} AND like_count < ${like_count})
       OR (tag_overlap = ${tag_overlap} AND like_count = ${like_count} AND comment_count < ${comment_count})
-      OR (tag_overlap = ${tag_overlap} AND like_count = ${like_count} AND comment_count = ${comment_count} AND id != ${id})
+      OR (tag_overlap = ${tag_overlap} AND like_count = ${like_count} AND comment_count = ${comment_count} AND created_at < ${created_at}))
     `
         : sql``
     }
@@ -267,10 +279,21 @@ export async function fetchFYP(
   `
       : sql`
     SELECT
-      videos.*,
+      videos.id,
+        videos.user_id,
+        videos.title,
+        videos.description,
+        videos.video_key AS key,
+        videos.thumbnail_key
+        videos.public,
+        videos.created_at,
+        "user".id AS poster_id,
+        "user".name AS poster_name,
+        "user".image AS poster_image,
       COALESCE(likes.like_count, 0) AS like_count,
       COALESCE(comments.comment_count, 0) AS comment_count
     FROM videos
+      JOIN "user" ON "user".id = videos.user_id
     LEFT JOIN (
       SELECT video_id, COUNT(*) AS like_count
       FROM video_likes
@@ -281,16 +304,17 @@ export async function fetchFYP(
       FROM video_comments
       GROUP BY video_id
     ) AS comments ON comments.video_id = videos.id
+     WHERE videos."public" = true
     ${
       cursor
         ? sql`
-      WHERE like_count < ${like_count}
+      AND (like_count < ${like_count}
       OR (like_count = ${like_count} AND comment_count < ${comment_count})
-      OR (like_count = ${like_count} AND comment_count = ${comment_count} AND id != ${id})
+      OR (like_count = ${like_count} AND comment_count = ${comment_count} AND created_at < ${created_at}))
     `
         : sql``
     }
-    GROUP BY videos.id, likes.like_count, comments.comment_count
+    GROUP BY videos.id, "user".id, likes.like_count, comments.comment_count
     ORDER BY like_count DESC, comment_count DESC, created_at DESC
     LIMIT 10
   `

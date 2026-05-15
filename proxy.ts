@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-import { betterFetch } from '@better-fetch/fetch';
+import { betterFetch } from "@better-fetch/fetch";
 
 type SessionResponse = {
   data: unknown | null;

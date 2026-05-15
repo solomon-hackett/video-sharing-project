@@ -37,6 +37,7 @@ export type IndividualVideo = {
   title: string;
   description: string;
   key: string;
+  thumbnail_key: string;
   created_at: string;
   isPublic: boolean;
   creator_id: string;

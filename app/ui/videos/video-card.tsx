@@ -1,45 +1,106 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { authClient } from "@/app/lib/auth-client";
-import { fetchComments } from "@/app/lib/data";
 import { Comment, Video } from "@/app/lib/definitions";
 import {
   ChatBubbleLeftEllipsisIcon as ChatBubbleIcon,
-  HeartIcon as EmptyHeartIcon,
-  PaperAirplaneIcon as SendIcon,
-  TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 
-export default function VideoCard({ video }: { video: Video }) {
+interface VideoCardProps {
+  video: Video;
+  isActive: boolean;
+  onActivate: (id: string | null) => void;
+  hasInteracted: boolean;
+}
+
+export default function VideoCard({
+  video,
+  isActive,
+  onActivate,
+  hasInteracted,
+}: VideoCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          onActivate(video.id);
+        } else {
+          onActivate(null);
+        }
+      },
+      { threshold: 0.6 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [video.id, onActivate]);
+  useEffect(() => {
+    if (!videoRef.current) return;
+    if (isActive) {
+      videoRef.current.muted = !hasInteracted;
+      videoRef.current.play();
+    } else {
+      videoRef.current.pause();
+    }
+  }, [isActive, hasInteracted]);
+  useEffect(() => {
+    if (!isActive) {
+      videoRef.current?.pause();
+    }
+  }, [isActive]);
+
   async function handleComments() {
-    const { data: session } = await authClient.useSession();
     setIsOpen(!isOpen);
     if (!isOpen) {
-      const { data, error } = await fetchComments(session?.user.id, video.id);
-      if (error) {
-        toast.error(error.message);
+      const res = await fetch(`/api/fetch/comments?id=${video.id}`);
+      if (!res.ok) {
+        toast.error("Failed to fetch comments.");
         return;
       }
-      setComments(data.map((comment) => ({ ...comment })));
+      const data = await res.json();
+      setComments(data.map((comment: Comment) => ({ ...comment })));
     } else {
       setComments([]);
     }
   }
+
   return (
-    <div>
-      <p>{video.id}</p>
-      <button onClick={handleComments}>
-        {isOpen ? (
-          <XMarkIcon style={{ width: 10, height: "auto" }} />
-        ) : (
-          <ChatBubbleIcon style={{ width: 10, height: "auto" }} />
-        )}
-      </button>
+    <div ref={cardRef} style={{ height: "90vh" }}>
+      <h1>{video.title}</h1>
+      <div>
+        <button onClick={handleComments}>
+          {isOpen ? (
+            <XMarkIcon style={{ width: 10, height: "auto" }} />
+          ) : (
+            <ChatBubbleIcon style={{ width: 10, height: "auto" }} />
+          )}
+        </button>
+        <div>
+          {comments.map((comment) => (
+            <div key={comment.id} />
+          ))}
+        </div>
+      </div>
+
+      <video
+        ref={videoRef}
+        src={isActive ? `/api/fetch/video?key=${video.key}` : undefined}
+        width={720}
+        controls
+        preload="none"
+        autoPlay
+        muted
+      />
+
+      <p>{video.description}</p>
     </div>
   );
 }

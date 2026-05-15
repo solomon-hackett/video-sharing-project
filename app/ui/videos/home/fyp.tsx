@@ -4,10 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import VideoCard from "../video-card";
 
 import type { Video } from "@/app/lib/definitions";
+
 export default function FYP() {
   const [videos, setVideos] = useState<Video[]>([]);
   const [cursor, setCursor] = useState(null);
   const [hasMore, setHasMore] = useState(true);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const fetchInProgress = useRef(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -27,7 +30,6 @@ export default function FYP() {
       fetchInProgress.current = false;
       return;
     }
-
     setVideos((prev) => {
       const existingIds = new Set(prev.map((v) => v.id));
       return [
@@ -38,26 +40,32 @@ export default function FYP() {
     setCursor(data.nextCursor);
     if (!data.nextCursor) setHasMore(false);
     fetchInProgress.current = false;
-  }, [cursor, hasMore, fetchInProgress]);
+  }, [cursor, hasMore]);
+
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        fetchFYP();
-      }
+      if (entries[0].isIntersecting) fetchFYP();
     });
-
-    if (sentinelRef.current) {
-      observer.observe(sentinelRef.current);
-    }
-
+    if (sentinelRef.current) observer.observe(sentinelRef.current);
     return () => observer.disconnect();
   }, [fetchFYP]);
+  useEffect(() => {
+    const unlock = () => setHasInteracted(true);
+    window.addEventListener("pointerdown", unlock, { once: true });
+    return () => window.removeEventListener("pointerdown", unlock);
+  }, []);
   return (
     <div>
       {videos.map((video) => (
-        <VideoCard key={video.id} video={video} />
+        <VideoCard
+          key={video.id}
+          video={video}
+          isActive={activeId === video.id}
+          onActivate={setActiveId}
+          hasInteracted={hasInteracted}
+        />
       ))}
-      <div ref={sentinelRef} id="sentinel" aria-hidden></div>
+      <div ref={sentinelRef} id="sentinel" aria-hidden />
     </div>
   );
 }

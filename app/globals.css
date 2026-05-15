@@ -2381,3 +2381,317 @@ p {
     overflow-x: auto;
   }
 }
+/* ================================================
+   VIDEO PAGE — styles to add to globals.css
+   Place after section 19 (video player) and
+   before section 20 (upload zone)
+   ================================================ */
+
+/* ------------------------------------------------
+   VIDEO PAGE — title row
+   ------------------------------------------------ */
+.video-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+/* ------------------------------------------------
+   VIDEO PAGE — delete wrapper (popover anchor)
+   ------------------------------------------------ */
+.video-delete-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+.danger-confirm-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: var(--z-dropdown);
+  min-width: 300px;
+}
+
+/* ------------------------------------------------
+   VIDEO PAGE — description block
+   ------------------------------------------------ */
+.description-block {
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+/* ------------------------------------------------
+   VIDEO PAGE — meta bar (likes + comment toggle)
+   ------------------------------------------------ */
+.video-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-6);
+}
+.video-meta__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.video-meta__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.like-count {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-2);
+  min-width: 28px;
+}
+
+/* ------------------------------------------------
+   COMPONENT — btn-icon-round
+   Reusable circular ghost icon button.
+   Add .liked for pink heart state.
+   ------------------------------------------------ */
+.btn-icon-round {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all var(--ease);
+}
+.btn-icon-round:hover {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text-2);
+}
+.btn-icon-round.liked {
+  color: var(--pink);
+  border-color: rgba(244, 114, 182, 0.3);
+  background: rgba(244, 114, 182, 0.08);
+}
+.btn-icon-round.liked:hover {
+  background: rgba(244, 114, 182, 0.15);
+}
+
+/* ------------------------------------------------
+   COMPONENT — btn-send
+   Reusable submit/send icon button (e.g. comment form).
+   ------------------------------------------------ */
+.btn-send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--cyan-dim);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  color: var(--cyan);
+  cursor: pointer;
+  transition: all var(--ease);
+}
+.btn-send:hover {
+  background: var(--cyan);
+  color: var(--inverse);
+}
+
+/* ------------------------------------------------
+   COMPONENT — danger-confirm
+   Inline danger confirmation strip.
+   Reusable anywhere a destructive action needs
+   inline confirm (not a full modal).
+   ------------------------------------------------ */
+.danger-confirm {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--danger-dim);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+}
+.danger-confirm p {
+  color: var(--danger);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  flex: 1;
+}
+.danger-confirm__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* ------------------------------------------------
+   VIDEO PAGE — comments section
+   ------------------------------------------------ */
+.comments-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.comments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+.comments-body {
+  padding: var(--space-1) 0;
+}
+
+/* ------------------------------------------------
+   COMPONENT — comment
+   Reusable for any comment thread.
+   ------------------------------------------------ */
+.comment {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  transition: background var(--ease);
+}
+.comment:last-child {
+  border-bottom: none;
+}
+.comment:hover {
+  background: var(--surface-2);
+}
+.comment__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+.comment__info {
+  flex: 1;
+  min-width: 0;
+}
+.comment__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: 3px;
+  flex-wrap: wrap;
+}
+.comment__author {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.comment__author:hover {
+  color: var(--cyan);
+}
+.comment__text {
+  font-size: 0.875rem;
+  color: var(--text-2);
+  line-height: 1.5;
+  margin: var(--space-1) 0 var(--space-2);
+}
+.comment__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.comment__like-count {
+  font-size: 0.75rem;
+  color: var(--muted);
+  min-width: 18px;
+}
+.comment__delete-btn {
+  margin-left: auto;
+  color: var(--danger) !important;
+  padding: 3px 7px !important;
+  opacity: 0;
+  transition: opacity var(--ease);
+}
+.comment:hover .comment__delete-btn,
+.reply:hover .comment__delete-btn {
+  opacity: 1;
+}
+
+/* ------------------------------------------------
+   VIDEO PAGE — replies thread
+   ------------------------------------------------ */
+.replies {
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--border);
+  margin-left: 42px;
+  margin-top: var(--space-2);
+}
+.reply {
+  padding: var(--space-3) 0 var(--space-3) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  transition: background var(--ease);
+}
+.reply:last-child {
+  border-bottom: none;
+}
+.reply:hover {
+  background: var(--surface-2);
+}
+
+/* ------------------------------------------------
+   VIDEO PAGE — reply banner
+   ------------------------------------------------ */
+.reply-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.reply-banner span {
+  flex: 1;
+}
+.reply-banner strong {
+  color: var(--text-2);
+  font-weight: 700;
+}
+
+/* ------------------------------------------------
+   VIDEO PAGE — comment form
+   ------------------------------------------------ */
+.comment-form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border);
+}
+.comment-input {
+  flex: 1;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 9px var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  outline: none;
+  transition: all var(--ease);
+}
+.comment-input:hover {
+  border-color: var(--border-2);
+}
+.comment-input:focus {
+  border-color: var(--cyan);
+  box-shadow: var(--cyan-glow);
+}
+.comment-input::placeholder {
+  color: var(--muted);
+}

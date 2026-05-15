@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "@/app/lib/auth";
 import { fetchFYP } from "@/app/lib/data";
+import { generatePrettyDate } from "@/app/lib/utils";
 
 export async function GET(req: NextRequest) {
   const cursorParam = req.nextUrl.searchParams.get("cursor");
@@ -22,9 +23,15 @@ export async function GET(req: NextRequest) {
           tag_overlap: lastVideo.tag_overlap,
           like_count: lastVideo.like_count,
           comment_count: lastVideo.comment_count,
-          id: lastVideo.id,
+          created_at: lastVideo.created_at,
         }),
       )
     : null;
-  return NextResponse.json({ videos, nextCursor });
+  return NextResponse.json({
+    videos: videos.map((video) => ({
+      ...video,
+      created_at: generatePrettyDate(video.created_at),
+    })),
+    nextCursor,
+  });
 }

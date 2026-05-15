@@ -1,13 +1,13 @@
 "use server";
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from "next/cache";
 
-import { sql } from './db';
+import { sql } from "./db";
 
 export async function createPost(
   creatorId: string,
   creatorName: string,
-  creatorImage: string,
+  creatorImage: string | undefined | null,
   title: string,
   description: string,
   isPublic: boolean,
@@ -32,7 +32,7 @@ export async function createPost(
         const payload = {
           title: `**${creatorName}** posted a new video!`,
           message: `${creatorName} posted *${video.title}*. [Watch it now!](/discover/${video.id}/watch)`,
-          creator_image: `${creatorImage}`,
+          creator_image: creatorImage ?? null,
         };
         await sql` INSERT INTO notifications (user_id, type, payload)
           SELECT subscriber_id, 'New Post', ${JSON.stringify(payload)}::jsonb
@@ -41,6 +41,7 @@ export async function createPost(
           AND notifications = true;`;
       }
     });
+    revalidatePath("/", "layout");
     return { data: { message: "Successfully uploaded video." }, error: null };
   } catch (error) {
     console.error("Database error:", error);
@@ -50,9 +51,26 @@ export async function createPost(
     };
   }
 }
-export async function deleteVideo(userId: string, videoId: string) {
+export async function deletePost(
+  userId: string,
+  videoId: string,
+  videoKey: string,
+  thumbnailKey: string,
+) {
   try {
-    await sql`DELETE FROM video_comments WHERE user_id = ${userId} AND id = ${videoId};`;
+    await sql`DELETE FROM videos WHERE user_id = ${userId} AND id = ${videoId};`;
+    await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/delete?type=video&key=${encodeURIComponent(videoKey)}`,
+      {
+        method: "DELETE",
+      },
+    );
+    await fetch(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/delete?type=thumbnail&key=${encodeURIComponent(thumbnailKey)}`,
+      {
+        method: "DELETE",
+      },
+    );
     revalidatePath("/", "layout");
     return {
       data: { message: "Video deleted successfully." },
