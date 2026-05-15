@@ -10,8 +10,8 @@ export default async function IndividualVideo({ id }: { id: string }) {
     headers: await headers(),
   });
   const userId = session?.user.id;
-  const video = await fetchVideoById(id, userId);
-  if (video === null) {
+  const result = await fetchVideoById(id, userId);
+  if (result === null) {
     return (
       <div className="empty-state">
         <div className="empty-state__icon">🔒</div>
@@ -23,6 +23,6 @@ export default async function IndividualVideo({ id }: { id: string }) {
       </div>
     );
   }
-
-  return <Video video={video} />;
+  const { video, comments } = result;
+  return <Video video={video} user={session?.user} comments={comments} />;
 }

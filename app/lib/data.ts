@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation';
 
 import { sql } from './db';
-import { Notification, ProfileSearchResult, Video, VideoSearchResult } from './definitions';
+import {
+    Comment, Notification, ProfileSearchResult, Video, VideoSearchResult
+} from './definitions';
 import { generatePrettyDate } from './utils';
 
 const SORT_CLAUSES = {
@@ -122,33 +124,61 @@ export async function fetchVideoById(
   userId: string | undefined,
 ) {
   try {
-    const video = await sql<Video[]>` 
-  SELECT 
-  videos.id,
-  videos.title,
-  videos.description,
-  videos.video_key as key,
-  videos.created_at,
-  videos.public::boolean AS "isPublic",
-  "user".id AS creator_id,
-  "user".name AS creator_name,
-  "user".image AS creator_image,
-  array_agg(video_tags.tag) FILTER (WHERE video_tags.tag IS NOT NULL) AS tags
-  FROM videos 
-  JOIN "user" ON "user".id = videos.user_id
-  LEFT JOIN video_tags ON video_tags.video_id = videos.id
-  WHERE videos.id = ${videoId}
-  GROUP BY 
-  videos.id,
-  videos.title,
-  videos.description,
-  videos.video_key,
-  videos.created_at,
-  "user".id,
-  "user".name,
-  "user".image;
-  `;
-    const vid = video[0];
+    const [video_data, comments_data] = await Promise.all([
+      sql<Video[]>`
+      SELECT 
+        videos.id,
+        videos.title,
+        videos.description,
+        videos.video_key AS key,
+        videos.created_at,
+        videos.public::boolean AS "isPublic",
+        "user".id AS creator_id,
+        "user".name AS creator_name,
+        "user".image AS creator_image,
+        array_agg(video_tags.tag) FILTER (WHERE video_tags.tag IS NOT NULL) AS tags,
+        COUNT(video_likes.video_id) AS "likes",
+        BOOL_OR(video_likes.user_id = ${userId ?? null}) AS "isLiked"
+      FROM videos
+      JOIN "user" ON "user".id = videos.user_id
+      LEFT JOIN video_tags ON video_tags.video_id = videos.id
+      LEFT JOIN video_likes ON video_likes.video_id = videos.id
+      WHERE videos.id = ${videoId}
+      GROUP BY
+        videos.id,
+        videos.title,
+        videos.description,
+        videos.video_key,
+        videos.created_at,
+        "user".id,
+        "user".name,
+        "user".image;
+    `,
+      sql<Comment[]>`
+    SELECT 
+    video_comments.id,
+    video_comments.content,
+    video_comments.parent_comment_id,
+    video_comments.created_at,
+    "user".id as poster_id,
+    "user".name as poster_name,
+    "user".image as poster_image,
+    COUNT(video_comment_likes.comment_id) AS "likes",
+    BOOL_OR(video_comment_likes.user_id = ${userId ?? null}) AS "isLiked"
+    FROM video_comments
+    JOIN "user" ON "user".id = video_comments.user_id
+    LEFT JOIN video_comment_likes ON video_comment_likes.comment_id = video_comments.id
+    WHERE video_comments.video_id = ${videoId}
+    GROUP BY 
+    video_comments.id,
+    video_comments.content,
+    video_comments.parent_comment_id,
+    video_comments.created_at,
+    "user".id,
+    "user".name,
+    "user".image;`,
+    ]);
+    const vid = video_data[0];
 
     if (!vid) notFound();
 
@@ -158,12 +188,22 @@ export async function fetchVideoById(
     if (!canView) {
       return null;
     }
-
-    return {
+    const video = {
       ...vid,
+      likes: Number(vid.likes),
       created_at: generatePrettyDate(vid.created_at),
     };
-  } catch {
+    const comments = comments_data.map((comment) => ({
+      ...comment,
+      created_at: generatePrettyDate(comment.created_at),
+    }));
+    return {
+      video,
+      comments,
+    };
+  } catch (err) {
+    console.error("Database error: ", err);
     notFound();
   }
 }
+export async function fetchFYP(userId: string) {}

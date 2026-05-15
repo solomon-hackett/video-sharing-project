@@ -6,29 +6,39 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 export async function GET(req: NextRequest) {
   const key = req.nextUrl.searchParams.get("key");
-  if (!key) {
-    return NextResponse.json({ error: "Missing key" }, { status: 400 });
-  }
+  if (!key) return NextResponse.json({ error: "Missing key" }, { status: 400 });
 
-  try {
-    const url = await getSignedUrl(
-      s3,
+  if (process.env.VIDEO_DELIVERY === "proxy") {
+    const rangeHeader = req.headers.get("range");
+    const object = await s3.send(
       new GetObjectCommand({
         Bucket: BUCKETS.videos,
         Key: key,
+        ...(rangeHeader ? { Range: rangeHeader } : {}),
       }),
-      { expiresIn: 300 },
     );
-
-    return NextResponse.redirect(url);
-  } catch (err: unknown) {
-    if (err instanceof Error && err.name === "NoSuchKey") {
-      return NextResponse.json({ error: "NoSuchKey" }, { status: 404 });
-    }
-
-    return NextResponse.json(
-      { error: "Failed to fetch video" },
-      { status: 500 },
-    );
+    const stream = object.Body!.transformToWebStream();
+    return new NextResponse(stream, {
+      status: rangeHeader && object.ContentRange ? 206 : 200,
+      headers: {
+        "Content-Type": object.ContentType ?? "video/mp4",
+        "Accept-Ranges": "bytes",
+        "Cache-Control": "private, max-age=300",
+        ...(object.ContentLength
+          ? { "Content-Length": String(object.ContentLength) }
+          : {}),
+        ...(object.ContentRange
+          ? { "Content-Range": object.ContentRange }
+          : {}),
+      },
+    });
   }
+
+  // presigned
+  const url = await getSignedUrl(
+    s3,
+    new GetObjectCommand({ Bucket: BUCKETS.videos, Key: key }),
+    { expiresIn: 300 },
+  );
+  return NextResponse.redirect(url);
 }

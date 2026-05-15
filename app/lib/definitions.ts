@@ -43,4 +43,18 @@ export type Video = {
   creator_name: string;
   creator_image: string;
   tags: Array<string>;
+  isLiked: boolean;
+  likes: number;
+};
+
+export type Comment = {
+  id: string;
+  content: string;
+  poster_id: string;
+  poster_name: string;
+  poster_image: string;
+  parent_comment_id: string | undefined;
+  created_at: string;
+  isLiked: boolean;
+  likes: number;
 };

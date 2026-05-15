@@ -1,5 +1,5 @@
 import BackButton from '@/app/ui/videos/back-button';
-import IndividualVideo from '@/app/ui/videos/individual-video';
+import IndividualVideo from '@/app/ui/videos/individual/individual-video';
 
 export default async function Page({
   params,

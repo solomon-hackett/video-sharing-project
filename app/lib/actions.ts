@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from 'next/cache';
+
 import { sql } from './db';
 
 export async function createPost(
@@ -45,6 +47,62 @@ export async function createPost(
     return {
       data: {},
       error: { message: "Failed to post, please try again later." },
+    };
+  }
+}
+export async function likePost(userId: string, videoId: string) {
+  try {
+    await sql`INSERT INTO video_likes (user_id, video_id) VALUES (${userId}, ${videoId});`;
+    revalidatePath("/", "layout");
+    return {
+      data: { message: "Video liked successfully." },
+      error: null,
+    };
+  } catch (err) {
+    console.error("Database error: ", err);
+    return {
+      data: {},
+      error: { message: "Failed to like video, please try again later." },
+    };
+  }
+}
+export async function unlikePost(userId: string, videoId: string) {
+  try {
+    await sql`DELETE FROM video_likes WHERE user_id = ${userId} AND video_id = ${videoId};`;
+    revalidatePath("/", "layout");
+    return {
+      data: { message: "Video liked successfully." },
+      error: null,
+    };
+  } catch (err) {
+    console.error("Database error: ", err);
+    return {
+      data: {},
+      error: { message: "Failed to like video, please try again later." },
+    };
+  }
+}
+export async function createComment(
+  videoId: string,
+  userId: string,
+  content: string,
+  parentCommentId: string | undefined | null,
+) {
+  try {
+    if (!parentCommentId) {
+      parentCommentId = null;
+    }
+    await sql`INSERT INTO video_comments(video_id, user_id, content, parent_comment_id) VALUES (${videoId}, ${userId}, ${content}, ${parentCommentId});`;
+    revalidatePath("/", "layout");
+    return {
+      data: { message: "Comment posted successfully." },
+      error: null,
+    };
+  } catch (err) {
+    console.error("Database error: ", err);
+    return {
+      data: {},
+      error: { message: "Failed to post comment, please try again later." },
     };
   }
 }
